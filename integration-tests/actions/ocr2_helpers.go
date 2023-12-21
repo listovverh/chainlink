@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"context"
 	"crypto/ed25519"
 	"encoding/hex"
 	"fmt"
@@ -96,7 +97,7 @@ func DeployChainReaderDemoOCRv2Contracts(
 ) ([]contracts.OffchainAggregatorV2, error) {
 	var ocrInstances []contracts.OffchainAggregatorV2
 	for contractCount := 0; contractCount < numberOfContracts; contractCount++ {
-		ocrInstance, err := contractDeployer.DeployOffchainAggregatorV2(
+		ocrInstance, err := contractDeployer.DeployChainReaderDemoOffchainAggregatorV2(
 			linkTokenContract.Address(),
 			ocrOptions,
 		)
@@ -448,6 +449,41 @@ func StartNewOCR2Round(
 		}
 		if !ocrRound.Complete() {
 			return fmt.Errorf("failed to complete OCR Round %d for ocr instance %d", roundNumber, i)
+		}
+	}
+	return nil
+}
+
+// StartNewOCR2RoundChainReaderDemo requests a new round from the ocr2 contracts and waits for confirmation
+func StartNewOCR2RoundChainReaderDemo(
+	roundNumber int64,
+	ocrInstances []contracts.OffchainAggregatorV2,
+	client blockchain.EVMClient,
+	timeout time.Duration,
+	logger zerolog.Logger,
+) error {
+	time.Sleep(5 * time.Second)
+	for i := 0; i < len(ocrInstances); i++ {
+		err := ocrInstances[i].RequestNewRound()
+		if err != nil {
+			return fmt.Errorf("requesting new OCR round %d have failed: %w", i+1, err)
+		}
+		start := time.Now()
+		for {
+			time.Sleep(time.Second * 5)
+			ocrInstance := ocrInstances[i].(*contracts.EthereumOffchainAggregatorV2ChainReaderDemo)
+			round, err := ocrInstance.LatestRoundRequested(context.Background())
+			if err != nil {
+				fmt.Println("err is ", err)
+			}
+			fmt.Println("round number ", roundNumber)
+			fmt.Println("round returned ", round)
+
+			if int64(round) == roundNumber {
+				return nil
+			} else if time.Since(start) >= time.Minute {
+				return fmt.Errorf("failed to wait for OCR Round %d to complete", roundNumber)
+			}
 		}
 	}
 	return nil

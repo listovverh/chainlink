@@ -49,7 +49,12 @@ func (entry *codecEntry) Init() error {
 			return err
 		}
 		tag := reflect.StructTag(`json:"` + arg.Name + `"`)
-		name := strings.ToUpper(arg.Name[:1]) + arg.Name[1:]
+		//TODO
+		fmt.Println("@@@@@@@arg name ", arg.Name)
+		name := arg.Name
+		if len(arg.Name) != 0 {
+			name = strings.ToUpper(arg.Name[:1]) + arg.Name[1:]
+		}
 		native[i] = reflect.StructField{Name: name, Type: nativeArg, Tag: tag}
 		checked[i] = reflect.StructField{Name: name, Type: checkedArg, Tag: tag}
 	}

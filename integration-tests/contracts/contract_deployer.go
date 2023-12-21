@@ -11,13 +11,13 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/smartcontractkit/libocr/gethwrappers2/ocr2aggregatorchainreaderdemo"
 
 	"github.com/smartcontractkit/libocr/gethwrappers/offchainaggregator"
 	"github.com/smartcontractkit/libocr/gethwrappers2/ocr2aggregator"
 	ocrConfigHelper "github.com/smartcontractkit/libocr/offchainreporting/confighelper"
 
 	"github.com/smartcontractkit/chainlink-testing-framework/blockchain"
+	ocr2aggregatorchainreaderdemo "github.com/smartcontractkit/chainlink/integration-tests/smoke/chainreader_demo/contracts"
 
 	"github.com/smartcontractkit/chainlink/v2/core/gethwrappers/functions/generated/functions_load_test_client"
 	"github.com/smartcontractkit/chainlink/v2/core/gethwrappers/functions/generated/functions_v1_events_mock"

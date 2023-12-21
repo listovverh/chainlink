@@ -15,7 +15,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/smartcontractkit/libocr/gethwrappers2/ocr2aggregatorchainreaderdemo"
 
 	"github.com/smartcontractkit/libocr/gethwrappers/offchainaggregator"
 	"github.com/smartcontractkit/libocr/gethwrappers2/ocr2aggregator"
@@ -23,6 +22,7 @@ import (
 	ocrTypes "github.com/smartcontractkit/libocr/offchainreporting/types"
 
 	"github.com/smartcontractkit/chainlink-testing-framework/blockchain"
+	ocr2aggregatorchainreaderdemo "github.com/smartcontractkit/chainlink/integration-tests/smoke/chainreader_demo/contracts"
 	"github.com/smartcontractkit/chainlink/v2/core/gethwrappers/functions/generated/functions_coordinator"
 	"github.com/smartcontractkit/chainlink/v2/core/gethwrappers/functions/generated/functions_load_test_client"
 	"github.com/smartcontractkit/chainlink/v2/core/gethwrappers/functions/generated/functions_router"
@@ -2081,6 +2081,18 @@ func (e EthereumOffchainAggregatorV2ChainReaderDemo) GetLatestRound(ctx context.
 		AnsweredInRound: data.AnsweredInRound,
 		Answer:          data.Answer,
 	}, nil
+}
+
+func (e EthereumOffchainAggregatorV2ChainReaderDemo) LatestRoundRequested(ctx context.Context) (uint8, error) {
+	opts := &bind.CallOpts{
+		From:    common.HexToAddress(e.client.GetDefaultWallet().Address()),
+		Context: ctx,
+	}
+	data, err := e.contract.LatestRoundRequested(opts)
+	if err != nil {
+		return 0, err
+	}
+	return data.Round, nil
 }
 
 func (e EthereumOffchainAggregatorV2ChainReaderDemo) GetRound(ctx context.Context, roundID *big.Int) (*RoundData, error) {

@@ -71,10 +71,15 @@ func (cr *chainReader) GetLatestValue(ctx context.Context, contractName, method 
 	}
 
 	if ae.evt == nil {
-		return cr.getLatestValueFromContract(ctx, contractName, method, params, returnVal)
+		err = cr.getLatestValueFromContract(ctx, contractName, method, params, returnVal)
+		cr.lggr.Infof("!!!!!!!!!!\nEVM CR\n%s.%s\n%#v\n%s\n resp returnval %v\n!!!!!!!!!!\n", contractName, method, params, returnVal)
+
+		return err
 	}
 
-	return cr.getLatestValueFromLogPoller(ctx, contractName, method, *ae.evt, returnVal)
+	err = cr.getLatestValueFromLogPoller(ctx, contractName, method, *ae.evt, returnVal)
+
+	return err
 }
 
 func (cr *chainReader) getLatestValueFromLogPoller(ctx context.Context, contractName, method string, hash common.Hash, returnVal any) error {
@@ -213,8 +218,9 @@ func addMethods(
 func addEncoderDef(contractName, methodName string, method abi.Method, parsed *parsedTypes, chainReaderDefinition types.ChainReaderDefinition) error {
 	// ABI.Pack prepends the method.ID to the encodings, we'll need the encoder to do the same.
 	input := &codecEntry{Args: method.Inputs, encodingPrefix: method.ID}
-
 	if err := input.Init(); err != nil {
+		fmt.Println("encoder error isss ", err.Error())
+		fmt.Printf("encoder def contract name %s \n method name %s\n method inputs %v\n err %s\n", contractName, methodName, method.Inputs, err.Error())
 		return err
 	}
 
@@ -235,7 +241,11 @@ func addDecoderDef(contractName, methodName string, outputs abi.Arguments, parse
 	}
 	output.mod = mod
 	parsed.decoderDefs[wrapItemType(contractName, methodName, false)] = output
-	return output.Init()
+	if err = output.Init(); err != nil {
+		fmt.Println("decoder error isss ", err.Error())
+		fmt.Printf("decoder def contract name %s \n method name %s\n method outputs %v\n err: %s\n", contractName, methodName, outputs, err.Error())
+	}
+	return nil
 }
 
 func addTypes(chainContractReaders map[string]types.ChainContractReader, b Bindings, parsed *parsedTypes) error {

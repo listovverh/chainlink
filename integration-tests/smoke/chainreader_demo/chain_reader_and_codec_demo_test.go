@@ -1,4 +1,4 @@
-package smoke
+package ocr2aggregatorchainreaderdemo
 
 import (
 	"fmt"
@@ -74,7 +74,9 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 	ocrOffchainOptions := contracts.DefaultOffChainAggregatorOptions()
 	aggregatorContracts, err := actions.DeployChainReaderDemoOCRv2Contracts(1, linkToken, env.ContractDeployer, transmitters, env.EVMClient, ocrOffchainOptions)
 	require.NoError(t, err, "Error deploying OCRv2 aggregator contracts")
-
+	for _, contract := range aggregatorContracts {
+		fmt.Printf("type is %T \n", contract)
+	}
 	err = actions.CreateOCRv2JobsLocal(aggregatorContracts, bootstrapNode, workerNodes, env.MockAdapter, "ocr2", 5, env.EVMClient.GetChainID().Uint64(), false, true)
 	require.NoError(t, err, "Error creating OCRv2 jobs")
 	fmt.Println("Jobs done")
@@ -90,7 +92,7 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 	err = env.MockAdapter.SetAdapterBasedIntValuePath("ocr2", []string{http.MethodGet, http.MethodPost}, 50)
 	require.NoError(t, err)
 
-	err = actions.StartNewOCR2Round(1, aggregatorContracts, env.EVMClient, time.Minute*5, l)
+	err = actions.StartNewOCR2RoundChainReaderDemo(1, aggregatorContracts, env.EVMClient, time.Minute*5, l)
 
 	require.NoError(t, err, "Error starting new OCR2 round")
 	fmt.Println("round done")
@@ -107,7 +109,7 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 	require.NoError(t, err)
 	fmt.Println("adapter")
 
-	err = actions.StartNewOCR2Round(2, aggregatorContracts, env.EVMClient, time.Minute*5, l)
+	err = actions.StartNewOCR2RoundChainReaderDemo(2, aggregatorContracts, env.EVMClient, time.Minute*5, l)
 	require.NoError(t, err)
 	fmt.Println("new round 2")
 
@@ -121,7 +123,7 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 	require.NoError(t, err)
 	fmt.Println("adapter 2")
 
-	err = actions.StartNewOCR2Round(3, aggregatorContracts, env.EVMClient, time.Minute*5, l)
+	err = actions.StartNewOCR2RoundChainReaderDemo(3, aggregatorContracts, env.EVMClient, time.Minute*5, l)
 	require.NoError(t, err)
 	fmt.Println("new round 3")
 
@@ -135,9 +137,5 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 		"Expected latest answer from OCR contract to be 10 but got %d",
 		roundData.Answer.Int64(),
 	)*/
-
-	fmt.Println("SLEEPING NOW")
-	time.Sleep(time.Hour)
-	fmt.Println("DONE SLEEPING")
 	require.Fail(t, "Capture logs")
 }
