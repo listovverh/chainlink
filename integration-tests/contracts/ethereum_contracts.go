@@ -15,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/smartcontractkit/libocr/gethwrappers2/ocr2aggregatorchainreaderdemo"
 
 	"github.com/smartcontractkit/libocr/gethwrappers/offchainaggregator"
 	"github.com/smartcontractkit/libocr/gethwrappers2/ocr2aggregator"
@@ -1954,6 +1955,164 @@ type EthereumOffchainAggregatorV2 struct {
 	client   blockchain.EVMClient
 	contract *ocr2aggregator.OCR2Aggregator
 	l        zerolog.Logger
+}
+
+type EthereumOffchainAggregatorV2ChainReaderDemo struct {
+	address  *common.Address
+	client   blockchain.EVMClient
+	contract *ocr2aggregatorchainreaderdemo.OCR2Aggregator
+	l        zerolog.Logger
+}
+
+func (e EthereumOffchainAggregatorV2ChainReaderDemo) Address() string {
+	return e.address.Hex()
+}
+
+func (e EthereumOffchainAggregatorV2ChainReaderDemo) Fund(nativeAmount *big.Float) error {
+	gasEstimates, err := e.client.EstimateGas(ethereum.CallMsg{
+		To: e.address,
+	})
+	if err != nil {
+		return err
+	}
+	return e.client.Fund(e.address.Hex(), nativeAmount, gasEstimates)
+}
+
+func (e EthereumOffchainAggregatorV2ChainReaderDemo) RequestNewRound() error {
+	opts, err := e.client.TransactionOpts(e.client.GetDefaultWallet())
+	if err != nil {
+		return err
+	}
+	tx, err := e.contract.RequestNewRound(opts)
+	if err != nil {
+		return err
+	}
+	return e.client.ProcessTransaction(tx)
+}
+
+func (e EthereumOffchainAggregatorV2ChainReaderDemo) SetConfig(ocrConfig *OCRv2Config) error {
+	opts, err := e.client.TransactionOpts(e.client.GetDefaultWallet())
+	if err != nil {
+		return err
+	}
+	e.l.Info().
+		Str("Address", e.Address()).
+		Interface("Signers", ocrConfig.Signers).
+		Interface("Transmitters", ocrConfig.Transmitters).
+		Uint8("F", ocrConfig.F).
+		Bytes("OnchainConfig", ocrConfig.OnchainConfig).
+		Uint64("OffchainConfigVersion", ocrConfig.OffchainConfigVersion).
+		Bytes("OffchainConfig", ocrConfig.OffchainConfig).
+		Msg("Setting OCRv2 Config")
+	tx, err := e.contract.SetConfig(
+		opts,
+		ocrConfig.Signers,
+		ocrConfig.Transmitters,
+		ocrConfig.F,
+		ocrConfig.OnchainConfig,
+		ocrConfig.OffchainConfigVersion,
+		ocrConfig.OffchainConfig,
+	)
+	if err != nil {
+		return err
+	}
+	return e.client.ProcessTransaction(tx)
+}
+
+func (e EthereumOffchainAggregatorV2ChainReaderDemo) GetConfig(ctx context.Context) ([32]byte, uint32, error) {
+	opts := &bind.CallOpts{
+		From:    common.HexToAddress(e.client.GetDefaultWallet().Address()),
+		Context: ctx,
+	}
+	details, err := e.contract.LatestConfigDetails(opts)
+	if err != nil {
+		return [32]byte{}, 0, err
+	}
+	return details.ConfigDigest, details.BlockNumber, err
+}
+
+func (e EthereumOffchainAggregatorV2ChainReaderDemo) SetPayees(transmitters, payees []string) error {
+	opts, err := e.client.TransactionOpts(e.client.GetDefaultWallet())
+	if err != nil {
+		return err
+	}
+	e.l.Info().
+		Str("Transmitters", fmt.Sprintf("%v", transmitters)).
+		Str("Payees", fmt.Sprintf("%v", payees)).
+		Str("OCRv2 Address", e.Address()).
+		Msg("Setting OCRv2 Payees")
+
+	var addTransmitters, addrPayees []common.Address
+	for _, t := range transmitters {
+		addTransmitters = append(addTransmitters, common.HexToAddress(t))
+	}
+	for _, p := range payees {
+		addrPayees = append(addrPayees, common.HexToAddress(p))
+	}
+
+	tx, err := e.contract.SetPayees(opts, addTransmitters, addrPayees)
+	if err != nil {
+		return err
+	}
+	return e.client.ProcessTransaction(tx)
+}
+
+func (e EthereumOffchainAggregatorV2ChainReaderDemo) GetLatestAnswer(ctx context.Context) (*big.Int, error) {
+	opts := &bind.CallOpts{
+		From:    common.HexToAddress(e.client.GetDefaultWallet().Address()),
+		Context: ctx,
+	}
+	return e.contract.LatestAnswer(opts)
+}
+
+func (e EthereumOffchainAggregatorV2ChainReaderDemo) GetLatestRound(ctx context.Context) (*RoundData, error) {
+	opts := &bind.CallOpts{
+		From:    common.HexToAddress(e.client.GetDefaultWallet().Address()),
+		Context: ctx,
+	}
+	data, err := e.contract.LatestRoundData(opts)
+	if err != nil {
+		return nil, err
+	}
+	return &RoundData{
+		RoundId:         data.RoundId,
+		StartedAt:       data.StartedAt,
+		UpdatedAt:       data.UpdatedAt,
+		AnsweredInRound: data.AnsweredInRound,
+		Answer:          data.Answer,
+	}, nil
+}
+
+func (e EthereumOffchainAggregatorV2ChainReaderDemo) GetRound(ctx context.Context, roundID *big.Int) (*RoundData, error) {
+	opts := &bind.CallOpts{
+		From:    common.HexToAddress(e.client.GetDefaultWallet().Address()),
+		Context: ctx,
+	}
+	data, err := e.contract.GetRoundData(opts, roundID)
+	if err != nil {
+		return nil, err
+	}
+	return &RoundData{
+		RoundId:         data.RoundId,
+		StartedAt:       data.StartedAt,
+		UpdatedAt:       data.UpdatedAt,
+		AnsweredInRound: data.AnsweredInRound,
+		Answer:          data.Answer,
+	}, nil
+}
+
+func (e EthereumOffchainAggregatorV2ChainReaderDemo) ParseEventAnswerUpdated(log types.Log) (*ocr2aggregator.OCR2AggregatorAnswerUpdated, error) {
+	oCR2AggregatorAnswerUpdated, err := e.contract.ParseAnswerUpdated(log)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ocr2aggregator.OCR2AggregatorAnswerUpdated{
+		Current:   oCR2AggregatorAnswerUpdated.Current,
+		RoundId:   oCR2AggregatorAnswerUpdated.RoundId,
+		UpdatedAt: oCR2AggregatorAnswerUpdated.UpdatedAt,
+		Raw:       oCR2AggregatorAnswerUpdated.Raw,
+	}, nil
 }
 
 // OCRv2Config represents the config for the OCRv2 contract

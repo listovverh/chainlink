@@ -85,6 +85,59 @@ func DeployOCRv2Contracts(
 	return ocrInstances, client.WaitForEvents()
 }
 
+// DeployChainReaderDemoOCRv2Contracts deploys a number of OCRv2 contracts and configures them with defaults
+func DeployChainReaderDemoOCRv2Contracts(
+	numberOfContracts int,
+	linkTokenContract contracts.LinkToken,
+	contractDeployer contracts.ContractDeployer,
+	transmitters []string,
+	client blockchain.EVMClient,
+	ocrOptions contracts.OffchainOptions,
+) ([]contracts.OffchainAggregatorV2, error) {
+	var ocrInstances []contracts.OffchainAggregatorV2
+	for contractCount := 0; contractCount < numberOfContracts; contractCount++ {
+		ocrInstance, err := contractDeployer.DeployOffchainAggregatorV2(
+			linkTokenContract.Address(),
+			ocrOptions,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("OCRv2 instance deployment have failed: %w", err)
+		}
+		ocrInstances = append(ocrInstances, ocrInstance)
+		if (contractCount+1)%ContractDeploymentInterval == 0 { // For large amounts of contract deployments, space things out some
+			err = client.WaitForEvents()
+			if err != nil {
+				return nil, fmt.Errorf("failed to wait for OCRv2 contract deployments: %w", err)
+			}
+		}
+	}
+	err := client.WaitForEvents()
+	if err != nil {
+		return nil, fmt.Errorf("error waiting for OCRv2 contract deployments: %w", err)
+	}
+
+	// Gather address payees
+	var payees []string
+	for range transmitters {
+		payees = append(payees, client.GetDefaultWallet().Address())
+	}
+
+	// Set Payees
+	for contractCount, ocrInstance := range ocrInstances {
+		err = ocrInstance.SetPayees(transmitters, payees)
+		if err != nil {
+			return nil, fmt.Errorf("error settings OCR payees: %w", err)
+		}
+		if (contractCount+1)%ContractDeploymentInterval == 0 { // For large amounts of contract deployments, space things out some
+			err = client.WaitForEvents()
+			if err != nil {
+				return nil, fmt.Errorf("failed to wait for setting OCR payees: %w", err)
+			}
+		}
+	}
+	return ocrInstances, client.WaitForEvents()
+}
+
 func ConfigureOCRv2AggregatorContracts(
 	client blockchain.EVMClient,
 	contractConfig *contracts.OCRv2Config,

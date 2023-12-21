@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/smartcontractkit/libocr/gethwrappers2/ocr2aggregatorchainreaderdemo"
 
 	"github.com/smartcontractkit/libocr/gethwrappers/offchainaggregator"
 	"github.com/smartcontractkit/libocr/gethwrappers2/ocr2aggregator"
@@ -135,6 +136,7 @@ type ContractDeployer interface {
 	DeployOffchainAggregatorEventsMock() (OffchainAggregatorEventsMock, error)
 	DeployMockAggregatorProxy(aggregatorAddr string) (MockAggregatorProxy, error)
 	DeployOffchainAggregatorV2(linkAddr string, offchainOptions OffchainOptions) (OffchainAggregatorV2, error)
+	DeployChainReaderDemoOffchainAggregatorV2(linkAddr string, offchainOptions OffchainOptions) (OffchainAggregatorV2, error)
 	LoadOffChainAggregatorV2(address *common.Address) (OffchainAggregatorV2, error)
 	DeployKeeperRegistryCheckUpkeepGasUsageWrapper(keeperRegistryAddr string) (KeeperRegistryCheckUpkeepGasUsageWrapper, error)
 	DeployKeeperRegistry11Mock() (KeeperRegistry11Mock, error)
@@ -1580,6 +1582,39 @@ func (e *EthereumContractDeployer) DeployOffchainAggregatorV2(
 	return &EthereumOffchainAggregatorV2{
 		client:   e.client,
 		contract: instance.(*ocr2aggregator.OCR2Aggregator),
+		address:  address,
+		l:        e.l,
+	}, err
+}
+
+// DeployChainReaderDemoOffchainAggregatorV2 deploys the chain reader demp offchain aggregation contract to the EVM chain
+func (e *EthereumContractDeployer) DeployChainReaderDemoOffchainAggregatorV2(
+	linkAddr string,
+	offchainOptions OffchainOptions,
+) (OffchainAggregatorV2, error) {
+	address, _, instance, err := e.client.DeployContract("OffChain Aggregator v2", func(
+		auth *bind.TransactOpts,
+		backend bind.ContractBackend,
+	) (common.Address, *types.Transaction, interface{}, error) {
+		la := common.HexToAddress(linkAddr)
+		return ocr2aggregatorchainreaderdemo.DeployOCR2Aggregator(
+			auth,
+			backend,
+			la,
+			offchainOptions.MinimumAnswer,
+			offchainOptions.MaximumAnswer,
+			offchainOptions.BillingAccessController,
+			offchainOptions.RequesterAccessController,
+			offchainOptions.Decimals,
+			offchainOptions.Description,
+		)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &EthereumOffchainAggregatorV2ChainReaderDemo{
+		client:   e.client,
+		contract: instance.(*ocr2aggregatorchainreaderdemo.OCR2Aggregator),
 		address:  address,
 		l:        e.l,
 	}, err
