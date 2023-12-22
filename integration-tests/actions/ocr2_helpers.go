@@ -466,7 +466,7 @@ func StartNewOCR2RoundChainReaderDemo(
 	for i := 0; i < len(ocrInstances); i++ {
 		err := ocrInstances[i].RequestNewRound()
 		if err != nil {
-			return fmt.Errorf("requesting new OCR round %d have failed: %w", i+1, err)
+			return fmt.Errorf("requesting new OCR2 round %d have failed: %w", i+1, err)
 		}
 		start := time.Now()
 		for {
@@ -474,15 +474,16 @@ func StartNewOCR2RoundChainReaderDemo(
 			ocrInstance := ocrInstances[i].(*contracts.EthereumOffchainAggregatorV2ChainReaderDemo)
 			round, err := ocrInstance.LatestRoundRequested(context.Background())
 			if err != nil {
-				fmt.Println("err is ", err)
+				return err
 			}
-			fmt.Println("round number ", roundNumber)
-			fmt.Println("round returned ", round)
 
 			if int64(round) == roundNumber {
 				return nil
-			} else if time.Since(start) >= time.Minute {
-				return fmt.Errorf("failed to wait for OCR Round %d to complete", roundNumber)
+			} else if time.Since(start) >= time.Minute*15 {
+				return fmt.Errorf("failed to wait for OCR2 Round %d to complete", roundNumber)
+			} else {
+				fmt.Println("round returned is ", round)
+				fmt.Println("wanted round is ", roundNumber)
 			}
 		}
 	}

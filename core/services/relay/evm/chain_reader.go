@@ -83,7 +83,7 @@ func (cr *chainReader) GetLatestValue(ctx context.Context, contractName, method 
 }
 
 func (cr *chainReader) getLatestValueFromLogPoller(ctx context.Context, contractName, method string, hash common.Hash, returnVal any) error {
-	cr.lggr.Infof("!!!!!!!!!!\nlp: EVM latest from log poller\n!!!!!!!!!!\n")
+	cr.lggr.Infof(fmt.Sprintf("!!!!!!!!!!\nlp: EVM latest from log poller contractName: %s \n method:%s!!!!!!!!!!\n", contractName, method))
 	ae, err := cr.bindings.getBinding(contractName, method, false)
 	if err != nil {
 		cr.lggr.Errorf("!!!!!!!!!!\nlp: EVM no binding err:\n%v\n!!!!!!!!!!\n", err)
@@ -95,15 +95,25 @@ func (cr *chainReader) getLatestValueFromLogPoller(ctx context.Context, contract
 		errStr := err.Error()
 		if strings.Contains(errStr, "not found") || strings.Contains(errStr, "no rows") {
 			cr.lggr.Infof("!!!!!!!!!!\nlp: Returning no error when nothing is found\n!!!!!!!!!!\n")
+			cr.lggr.Infof(fmt.Sprintf("!!!!!!!!!!\nlp: Returning no error when nothing is found contractName: %s \n method:%s!!!!!!!!!!\n", contractName, method))
+
 			return nil
 		}
 		cr.lggr.Errorf("!!!!!!!!!!\nlp: No sig err:\n%v\n!!!!!!!!!!\n", err)
+		cr.lggr.Infof(fmt.Sprintf("!!!!!!!!!!\nlp:  No sig err contractName: %s \n method:%s!!!!!!!!!!\n", contractName, method))
+
 		return fmt.Errorf("%w: %w", commontypes.ErrInternal, err)
 	}
+	cr.lggr.Infof(fmt.Sprintf("!!!!!!!!!!\nlp:  No lp err  contractName: %s \n method:%s!!!!!!!!!!\n", contractName, method))
+
 	err = cr.codec.Decode(ctx, log.Data, returnVal, wrapItemType(contractName, method, false))
 	if err != nil {
+		cr.lggr.Infof(fmt.Sprintf("!!!!!!!!!!\nlp: EVM decode err  contractName: %s \n method:%s!!!!!!!!!!\n", contractName, method))
+
 		cr.lggr.Errorf("!!!!!!!!!!\nlp: EVM decode err:\n%v\n!!!!!!!!!!\n", err)
 	} else {
+		cr.lggr.Infof(fmt.Sprintf("!!!!!!!!!!\nlp: EVM decode success  contractName: %s \n method:%s!!!!!!!!!!\n", contractName, method))
+
 		cr.lggr.Infof("!!!!!!!!!!\nlp: EVM decode success\n%#v\n!!!!!!!!!!\n", returnVal)
 	}
 	return err
