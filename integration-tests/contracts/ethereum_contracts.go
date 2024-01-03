@@ -1979,6 +1979,16 @@ func (e EthereumOffchainAggregatorV2ChainReaderDemo) Fund(nativeAmount *big.Floa
 }
 
 func (e EthereumOffchainAggregatorV2ChainReaderDemo) RequestNewRound() error {
+	//opts, err := e.client.TransactionOpts(e.client.GetDefaultWallet())
+	//if err != nil {
+	//	return err
+	//}
+	//tx, err := e.contract.RequestNewRound(opts)
+	//if err != nil {
+	//	return err
+	//}
+	//return e.client.ProcessTransaction(tx)
+
 	opts, err := e.client.TransactionOpts(e.client.GetDefaultWallet())
 	if err != nil {
 		return err
@@ -1987,7 +1997,48 @@ func (e EthereumOffchainAggregatorV2ChainReaderDemo) RequestNewRound() error {
 	if err != nil {
 		return err
 	}
-	return e.client.ProcessTransaction(tx)
+
+	var txConfirmer blockchain.HeaderEventSubscription
+	if e.client.GetNetworkConfig().MinimumConfirmations <= 0 {
+		err := e.client.MarkTxAsSentOnL2(tx)
+		if err != nil {
+			return err
+		}
+		txConfirmer = blockchain.NewInstantConfirmer(e.client, tx.Hash(), nil, nil, e.l)
+	} else {
+		txConfirmer = blockchain.NewTransactionConfirmer(e.client, tx, e.client.GetNetworkConfig().MinimumConfirmations, e.l)
+	}
+
+	e.client.AddHeaderEventSubscription(tx.Hash().String(), txConfirmer)
+	e.l.Debug().Str("Hash", tx.Hash().String()).Msg("Waiting for TX to confirm before moving on")
+	defer e.client.DeleteHeaderEventSubscription(tx.Hash().String())
+	err = txConfirmer.Wait()
+	if err != nil {
+		return err
+	}
+
+	is, err := e.client.IsTxConfirmed(tx.Hash())
+	if err != nil {
+		return err
+	}
+
+	if is {
+		fmt.Println("tx is confirmed")
+		receipt, err := e.client.GetTxReceipt(tx.Hash())
+		if err != nil {
+			return err
+		}
+		latestBlock, err := e.client.LatestBlockNumber(context.Background())
+		if err != nil {
+			return err
+		}
+		fmt.Println("receipt blocknumber ", receipt.BlockNumber)
+		fmt.Println("latestBlock is \n\n", latestBlock)
+		return nil
+	} else {
+		fmt.Println("tx isn't confirmed")
+		return fmt.Errorf("tx not confirmed")
+	}
 }
 
 func (e EthereumOffchainAggregatorV2ChainReaderDemo) SetConfig(ocrConfig *OCRv2Config) error {
@@ -2092,7 +2143,8 @@ func (e EthereumOffchainAggregatorV2ChainReaderDemo) LatestRoundRequested(ctx co
 	if err != nil {
 		return 0, err
 	}
-	return data.Round, nil
+	fmt.Printf("round data %d \n requester %s \n digest %v \n aggroundiD %d \n epoch %d \n\n ", data.Round, data.Requester.String(), data.ConfigDigest, data.AggregatorRoundId, data.Epoch)
+	return uint8(data.AggregatorRoundId), nil
 }
 
 func (e EthereumOffchainAggregatorV2ChainReaderDemo) GetRound(ctx context.Context, roundID *big.Int) (*RoundData, error) {

@@ -455,6 +455,7 @@ func (r *Relayer) NewMedianProvider(rargs commontypes.RelayArgs, pargs commontyp
 	relayOpts := types.NewRelayOpts(rargs)
 	relayConfig, err := relayOpts.RelayConfig()
 	if err != nil {
+		lggr.Error(err)
 		return nil, fmt.Errorf("failed to get relay config: %w", err)
 	}
 	expectedChainID := relayConfig.ChainID.String()

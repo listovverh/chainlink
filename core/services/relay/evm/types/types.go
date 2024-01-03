@@ -92,7 +92,7 @@ func (o *RelayOpts) RelayConfig() (RelayConfig, error) {
 		var c RelayConfig
 		err := json.Unmarshal(o.RelayArgs.RelayConfig, &c)
 		if err != nil {
-			return empty, fmt.Errorf("%w: failed to deserialize relay config: %w", ErrBadRelayConfig, err)
+			return empty, fmt.Errorf("%w: failed to deserialize relay config: %w, config: %s", ErrBadRelayConfig, err, string(o.RelayArgs.RelayConfig))
 		}
 		o.c = &c
 	}
