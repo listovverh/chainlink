@@ -42,19 +42,23 @@ func (entry *codecEntry) Init() error {
 		return nil
 	}
 
+	seenNames := map[string]bool{}
 	for i, arg := range args {
 		tmp := arg.Type
 		nativeArg, checkedArg, err := getNativeAndCheckedTypes(&tmp)
 		if err != nil {
 			return err
 		}
-		tag := reflect.StructTag(`json:"` + arg.Name + `"`)
-		//TODO
-		fmt.Println("@@@@@@@arg name ", arg.Name)
-		name := arg.Name
-		if len(arg.Name) != 0 {
-			name = strings.ToUpper(arg.Name[:1]) + arg.Name[1:]
+		if len(arg.Name) == 0 {
+			return fmt.Errorf("%w: empty field names are not supported for multiple returns", commontypes.ErrInvalidType)
 		}
+
+		tag := reflect.StructTag(`json:"` + arg.Name + `"`)
+		name := strings.ToUpper(arg.Name[:1]) + arg.Name[1:]
+		if seenNames[name] {
+			return fmt.Errorf("%w: duplicate field name %s, first letter casing is ignored", commontypes.ErrInvalidType, name)
+		}
+		seenNames[name] = true
 		native[i] = reflect.StructField{Name: name, Type: nativeArg, Tag: tag}
 		checked[i] = reflect.StructField{Name: name, Type: checkedArg, Tag: tag}
 	}
@@ -66,7 +70,7 @@ func (entry *codecEntry) Init() error {
 
 func (entry *codecEntry) GetMaxSize(n int) (int, error) {
 	if entry == nil {
-		return 0, commontypes.ErrInvalidType
+		return 0, fmt.Errorf("%w: nil entry", commontypes.ErrInvalidType)
 	}
 	return GetMaxSize(n, entry.Args)
 }
@@ -109,10 +113,11 @@ func getNativeAndCheckedTypes(curType *abi.Type) (reflect.Type, reflect.Type, er
 			}
 			curType = curType.Elem
 		default:
-			return nil, nil, commontypes.ErrInvalidType
+			return nil, nil, fmt.Errorf(
+				"%w: cannot create type for kind %v", commontypes.ErrInvalidType, curType.GetType().Kind())
 		}
 	}
-	base, ok := types.GetType(curType.String())
+	base, ok := types.GetAbiEncodingType(curType.String())
 	if ok {
 		return converter(base.Native), converter(base.Checked), nil
 	}

@@ -53,7 +53,7 @@ func (i *int24) Verify() error {
 func (i *int24) private() {}
 
 func init() {
-	typeMap["int24"] = &AbiEncodingType{
+	typeMap["int24"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int24)(nil)),
 	}
@@ -92,7 +92,7 @@ func (i *uint24) Verify() error {
 func (i *uint24) private() {}
 
 func init() {
-	typeMap["uint24"] = &AbiEncodingType{
+	typeMap["uint24"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint24)(nil)),
 	}
@@ -131,7 +131,7 @@ func (i *int40) Verify() error {
 func (i *int40) private() {}
 
 func init() {
-	typeMap["int40"] = &AbiEncodingType{
+	typeMap["int40"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int40)(nil)),
 	}
@@ -170,7 +170,7 @@ func (i *uint40) Verify() error {
 func (i *uint40) private() {}
 
 func init() {
-	typeMap["uint40"] = &AbiEncodingType{
+	typeMap["uint40"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint40)(nil)),
 	}
@@ -209,7 +209,7 @@ func (i *int48) Verify() error {
 func (i *int48) private() {}
 
 func init() {
-	typeMap["int48"] = &AbiEncodingType{
+	typeMap["int48"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int48)(nil)),
 	}
@@ -248,7 +248,7 @@ func (i *uint48) Verify() error {
 func (i *uint48) private() {}
 
 func init() {
-	typeMap["uint48"] = &AbiEncodingType{
+	typeMap["uint48"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint48)(nil)),
 	}
@@ -287,7 +287,7 @@ func (i *int56) Verify() error {
 func (i *int56) private() {}
 
 func init() {
-	typeMap["int56"] = &AbiEncodingType{
+	typeMap["int56"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int56)(nil)),
 	}
@@ -326,7 +326,7 @@ func (i *uint56) Verify() error {
 func (i *uint56) private() {}
 
 func init() {
-	typeMap["uint56"] = &AbiEncodingType{
+	typeMap["uint56"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint56)(nil)),
 	}
@@ -365,7 +365,7 @@ func (i *int72) Verify() error {
 func (i *int72) private() {}
 
 func init() {
-	typeMap["int72"] = &AbiEncodingType{
+	typeMap["int72"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int72)(nil)),
 	}
@@ -404,7 +404,7 @@ func (i *uint72) Verify() error {
 func (i *uint72) private() {}
 
 func init() {
-	typeMap["uint72"] = &AbiEncodingType{
+	typeMap["uint72"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint72)(nil)),
 	}
@@ -443,7 +443,7 @@ func (i *int80) Verify() error {
 func (i *int80) private() {}
 
 func init() {
-	typeMap["int80"] = &AbiEncodingType{
+	typeMap["int80"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int80)(nil)),
 	}
@@ -482,7 +482,7 @@ func (i *uint80) Verify() error {
 func (i *uint80) private() {}
 
 func init() {
-	typeMap["uint80"] = &AbiEncodingType{
+	typeMap["uint80"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint80)(nil)),
 	}
@@ -521,7 +521,7 @@ func (i *int88) Verify() error {
 func (i *int88) private() {}
 
 func init() {
-	typeMap["int88"] = &AbiEncodingType{
+	typeMap["int88"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int88)(nil)),
 	}
@@ -560,7 +560,7 @@ func (i *uint88) Verify() error {
 func (i *uint88) private() {}
 
 func init() {
-	typeMap["uint88"] = &AbiEncodingType{
+	typeMap["uint88"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint88)(nil)),
 	}
@@ -599,7 +599,7 @@ func (i *int96) Verify() error {
 func (i *int96) private() {}
 
 func init() {
-	typeMap["int96"] = &AbiEncodingType{
+	typeMap["int96"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int96)(nil)),
 	}
@@ -638,7 +638,7 @@ func (i *uint96) Verify() error {
 func (i *uint96) private() {}
 
 func init() {
-	typeMap["uint96"] = &AbiEncodingType{
+	typeMap["uint96"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint96)(nil)),
 	}
@@ -677,7 +677,7 @@ func (i *int104) Verify() error {
 func (i *int104) private() {}
 
 func init() {
-	typeMap["int104"] = &AbiEncodingType{
+	typeMap["int104"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int104)(nil)),
 	}
@@ -716,7 +716,7 @@ func (i *uint104) Verify() error {
 func (i *uint104) private() {}
 
 func init() {
-	typeMap["uint104"] = &AbiEncodingType{
+	typeMap["uint104"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint104)(nil)),
 	}
@@ -755,7 +755,7 @@ func (i *int112) Verify() error {
 func (i *int112) private() {}
 
 func init() {
-	typeMap["int112"] = &AbiEncodingType{
+	typeMap["int112"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int112)(nil)),
 	}
@@ -794,7 +794,7 @@ func (i *uint112) Verify() error {
 func (i *uint112) private() {}
 
 func init() {
-	typeMap["uint112"] = &AbiEncodingType{
+	typeMap["uint112"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint112)(nil)),
 	}
@@ -833,7 +833,7 @@ func (i *int120) Verify() error {
 func (i *int120) private() {}
 
 func init() {
-	typeMap["int120"] = &AbiEncodingType{
+	typeMap["int120"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int120)(nil)),
 	}
@@ -872,7 +872,7 @@ func (i *uint120) Verify() error {
 func (i *uint120) private() {}
 
 func init() {
-	typeMap["uint120"] = &AbiEncodingType{
+	typeMap["uint120"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint120)(nil)),
 	}
@@ -911,7 +911,7 @@ func (i *int128) Verify() error {
 func (i *int128) private() {}
 
 func init() {
-	typeMap["int128"] = &AbiEncodingType{
+	typeMap["int128"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int128)(nil)),
 	}
@@ -950,7 +950,7 @@ func (i *uint128) Verify() error {
 func (i *uint128) private() {}
 
 func init() {
-	typeMap["uint128"] = &AbiEncodingType{
+	typeMap["uint128"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint128)(nil)),
 	}
@@ -989,7 +989,7 @@ func (i *int136) Verify() error {
 func (i *int136) private() {}
 
 func init() {
-	typeMap["int136"] = &AbiEncodingType{
+	typeMap["int136"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int136)(nil)),
 	}
@@ -1028,7 +1028,7 @@ func (i *uint136) Verify() error {
 func (i *uint136) private() {}
 
 func init() {
-	typeMap["uint136"] = &AbiEncodingType{
+	typeMap["uint136"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint136)(nil)),
 	}
@@ -1067,7 +1067,7 @@ func (i *int144) Verify() error {
 func (i *int144) private() {}
 
 func init() {
-	typeMap["int144"] = &AbiEncodingType{
+	typeMap["int144"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int144)(nil)),
 	}
@@ -1106,7 +1106,7 @@ func (i *uint144) Verify() error {
 func (i *uint144) private() {}
 
 func init() {
-	typeMap["uint144"] = &AbiEncodingType{
+	typeMap["uint144"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint144)(nil)),
 	}
@@ -1145,7 +1145,7 @@ func (i *int152) Verify() error {
 func (i *int152) private() {}
 
 func init() {
-	typeMap["int152"] = &AbiEncodingType{
+	typeMap["int152"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int152)(nil)),
 	}
@@ -1184,7 +1184,7 @@ func (i *uint152) Verify() error {
 func (i *uint152) private() {}
 
 func init() {
-	typeMap["uint152"] = &AbiEncodingType{
+	typeMap["uint152"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint152)(nil)),
 	}
@@ -1223,7 +1223,7 @@ func (i *int160) Verify() error {
 func (i *int160) private() {}
 
 func init() {
-	typeMap["int160"] = &AbiEncodingType{
+	typeMap["int160"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int160)(nil)),
 	}
@@ -1262,7 +1262,7 @@ func (i *uint160) Verify() error {
 func (i *uint160) private() {}
 
 func init() {
-	typeMap["uint160"] = &AbiEncodingType{
+	typeMap["uint160"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint160)(nil)),
 	}
@@ -1301,7 +1301,7 @@ func (i *int168) Verify() error {
 func (i *int168) private() {}
 
 func init() {
-	typeMap["int168"] = &AbiEncodingType{
+	typeMap["int168"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int168)(nil)),
 	}
@@ -1340,7 +1340,7 @@ func (i *uint168) Verify() error {
 func (i *uint168) private() {}
 
 func init() {
-	typeMap["uint168"] = &AbiEncodingType{
+	typeMap["uint168"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint168)(nil)),
 	}
@@ -1379,7 +1379,7 @@ func (i *int176) Verify() error {
 func (i *int176) private() {}
 
 func init() {
-	typeMap["int176"] = &AbiEncodingType{
+	typeMap["int176"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int176)(nil)),
 	}
@@ -1418,7 +1418,7 @@ func (i *uint176) Verify() error {
 func (i *uint176) private() {}
 
 func init() {
-	typeMap["uint176"] = &AbiEncodingType{
+	typeMap["uint176"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint176)(nil)),
 	}
@@ -1457,7 +1457,7 @@ func (i *int184) Verify() error {
 func (i *int184) private() {}
 
 func init() {
-	typeMap["int184"] = &AbiEncodingType{
+	typeMap["int184"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int184)(nil)),
 	}
@@ -1496,7 +1496,7 @@ func (i *uint184) Verify() error {
 func (i *uint184) private() {}
 
 func init() {
-	typeMap["uint184"] = &AbiEncodingType{
+	typeMap["uint184"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint184)(nil)),
 	}
@@ -1535,7 +1535,7 @@ func (i *int192) Verify() error {
 func (i *int192) private() {}
 
 func init() {
-	typeMap["int192"] = &AbiEncodingType{
+	typeMap["int192"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int192)(nil)),
 	}
@@ -1574,7 +1574,7 @@ func (i *uint192) Verify() error {
 func (i *uint192) private() {}
 
 func init() {
-	typeMap["uint192"] = &AbiEncodingType{
+	typeMap["uint192"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint192)(nil)),
 	}
@@ -1613,7 +1613,7 @@ func (i *int200) Verify() error {
 func (i *int200) private() {}
 
 func init() {
-	typeMap["int200"] = &AbiEncodingType{
+	typeMap["int200"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int200)(nil)),
 	}
@@ -1652,7 +1652,7 @@ func (i *uint200) Verify() error {
 func (i *uint200) private() {}
 
 func init() {
-	typeMap["uint200"] = &AbiEncodingType{
+	typeMap["uint200"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint200)(nil)),
 	}
@@ -1691,7 +1691,7 @@ func (i *int208) Verify() error {
 func (i *int208) private() {}
 
 func init() {
-	typeMap["int208"] = &AbiEncodingType{
+	typeMap["int208"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int208)(nil)),
 	}
@@ -1730,7 +1730,7 @@ func (i *uint208) Verify() error {
 func (i *uint208) private() {}
 
 func init() {
-	typeMap["uint208"] = &AbiEncodingType{
+	typeMap["uint208"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint208)(nil)),
 	}
@@ -1769,7 +1769,7 @@ func (i *int216) Verify() error {
 func (i *int216) private() {}
 
 func init() {
-	typeMap["int216"] = &AbiEncodingType{
+	typeMap["int216"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int216)(nil)),
 	}
@@ -1808,7 +1808,7 @@ func (i *uint216) Verify() error {
 func (i *uint216) private() {}
 
 func init() {
-	typeMap["uint216"] = &AbiEncodingType{
+	typeMap["uint216"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint216)(nil)),
 	}
@@ -1847,7 +1847,7 @@ func (i *int224) Verify() error {
 func (i *int224) private() {}
 
 func init() {
-	typeMap["int224"] = &AbiEncodingType{
+	typeMap["int224"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int224)(nil)),
 	}
@@ -1886,7 +1886,7 @@ func (i *uint224) Verify() error {
 func (i *uint224) private() {}
 
 func init() {
-	typeMap["uint224"] = &AbiEncodingType{
+	typeMap["uint224"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint224)(nil)),
 	}
@@ -1925,7 +1925,7 @@ func (i *int232) Verify() error {
 func (i *int232) private() {}
 
 func init() {
-	typeMap["int232"] = &AbiEncodingType{
+	typeMap["int232"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int232)(nil)),
 	}
@@ -1964,7 +1964,7 @@ func (i *uint232) Verify() error {
 func (i *uint232) private() {}
 
 func init() {
-	typeMap["uint232"] = &AbiEncodingType{
+	typeMap["uint232"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint232)(nil)),
 	}
@@ -2003,7 +2003,7 @@ func (i *int240) Verify() error {
 func (i *int240) private() {}
 
 func init() {
-	typeMap["int240"] = &AbiEncodingType{
+	typeMap["int240"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int240)(nil)),
 	}
@@ -2042,7 +2042,7 @@ func (i *uint240) Verify() error {
 func (i *uint240) private() {}
 
 func init() {
-	typeMap["uint240"] = &AbiEncodingType{
+	typeMap["uint240"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint240)(nil)),
 	}
@@ -2081,7 +2081,7 @@ func (i *int248) Verify() error {
 func (i *int248) private() {}
 
 func init() {
-	typeMap["int248"] = &AbiEncodingType{
+	typeMap["int248"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int248)(nil)),
 	}
@@ -2120,7 +2120,7 @@ func (i *uint248) Verify() error {
 func (i *uint248) private() {}
 
 func init() {
-	typeMap["uint248"] = &AbiEncodingType{
+	typeMap["uint248"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint248)(nil)),
 	}
@@ -2159,7 +2159,7 @@ func (i *int256) Verify() error {
 func (i *int256) private() {}
 
 func init() {
-	typeMap["int256"] = &AbiEncodingType{
+	typeMap["int256"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*int256)(nil)),
 	}
@@ -2198,7 +2198,7 @@ func (i *uint256) Verify() error {
 func (i *uint256) private() {}
 
 func init() {
-	typeMap["uint256"] = &AbiEncodingType{
+	typeMap["uint256"] = &ABIEncodingType{
 		Native:  reflect.TypeOf((*big.Int)(nil)),
 		Checked: reflect.TypeOf((*uint256)(nil)),
 	}

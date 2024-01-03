@@ -2,26 +2,22 @@ package evm
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	commontypes "github.com/smartcontractkit/chainlink-common/pkg/types"
-
-	"github.com/smartcontractkit/chainlink/v2/core/logger"
 )
 
 type encoder struct {
 	Definitions map[string]*codecEntry
-	lggr        logger.Logger
 }
 
 var _ commontypes.Encoder = &encoder{}
 
 func (e *encoder) Encode(ctx context.Context, item any, itemType string) ([]byte, error) {
-	e.lggr.Infof("!!!!!!!!!!\nEncode: %#v\n%s\n!!!!!!!!!!\n", item, itemType)
 	info, ok := e.Definitions[itemType]
 	if !ok {
-		e.lggr.Errorf("!!!!!!!!!!\nEncode error not found\n%s\n!!!!!!!!!!\n", itemType)
-		return nil, commontypes.ErrInvalidType
+		return nil, fmt.Errorf("%w: cannot find definition for %s", commontypes.ErrInvalidType, itemType)
 	}
 
 	if item == nil {
@@ -30,54 +26,47 @@ func (e *encoder) Encode(ctx context.Context, item any, itemType string) ([]byte
 		return cpy, nil
 	}
 
-	b, err := encode(reflect.ValueOf(item), info, e.lggr)
-	if err == nil {
-		e.lggr.Infof("!!!!!!!!!!\nEncode success\n%s\n!!!!!!!!!!\n", itemType)
-	} else {
-		e.lggr.Errorf("!!!!!!!!!!\nEncode error\n%v\n%s\n!!!!!!!!!!\n", err, itemType)
-	}
-	return b, err
+	return encode(reflect.ValueOf(item), info)
 }
 
 func (e *encoder) GetMaxEncodingSize(ctx context.Context, n int, itemType string) (int, error) {
-	e.lggr.Infof("!!!!!!!!!!\nGetMaxEncodingSize\n%s\n\n%v\n!!!!!!!!!!\n", itemType, e.Definitions)
 	return e.Definitions[itemType].GetMaxSize(n)
 }
 
-func encode(item reflect.Value, info *codecEntry, lggr logger.Logger) ([]byte, error) {
+func encode(item reflect.Value, info *codecEntry) ([]byte, error) {
 	for item.Kind() == reflect.Pointer {
 		item = reflect.Indirect(item)
 	}
 	switch item.Kind() {
 	case reflect.Array, reflect.Slice:
-		return encodeArray(item, info, lggr)
+		return encodeArray(item, info)
 	case reflect.Struct, reflect.Map:
-		return encodeItem(item, info, lggr)
+		return encodeItem(item, info)
 	default:
-		return nil, commontypes.ErrInvalidEncoding
+		return nil, fmt.Errorf("%w: cannot encode kind %v", commontypes.ErrInvalidType, item.Kind())
 	}
 }
 
-func encodeArray(item reflect.Value, info *codecEntry, lggr logger.Logger) ([]byte, error) {
+func encodeArray(item reflect.Value, info *codecEntry) ([]byte, error) {
 	length := item.Len()
 	var native reflect.Value
 	switch info.checkedType.Kind() {
 	case reflect.Array:
 		if info.checkedType.Len() != length {
-			return nil, commontypes.ErrWrongNumberOfElements
+			return nil, commontypes.ErrSliceWrongLen
 		}
 		native = reflect.New(info.nativeType).Elem()
 	case reflect.Slice:
 		native = reflect.MakeSlice(info.nativeType, length, length)
 	default:
-		return nil, commontypes.ErrInvalidType
+		return nil, fmt.Errorf("%w: cannot encode %v as array", commontypes.ErrInvalidType, info.checkedType.Kind())
 	}
 
 	checkedElm := info.checkedType.Elem()
 	nativeElm := info.nativeType.Elem()
 	for i := 0; i < length; i++ {
 		tmp := reflect.New(checkedElm)
-		if err := mapstructureDecode(item.Index(i).Interface(), tmp.Interface(), lggr); err != nil {
+		if err := mapstructureDecode(item.Index(i).Interface(), tmp.Interface()); err != nil {
 			return nil, err
 		}
 		native.Index(i).Set(reflect.NewAt(nativeElm, tmp.UnsafePointer()).Elem())
@@ -86,12 +75,12 @@ func encodeArray(item reflect.Value, info *codecEntry, lggr logger.Logger) ([]by
 	return pack(info, native.Interface())
 }
 
-func encodeItem(item reflect.Value, info *codecEntry, lggr logger.Logger) ([]byte, error) {
+func encodeItem(item reflect.Value, info *codecEntry) ([]byte, error) {
 	if item.Type() == reflect.PointerTo(info.checkedType) {
 		item = reflect.NewAt(info.nativeType, item.UnsafePointer())
 	} else if item.Type() != reflect.PointerTo(info.nativeType) {
 		checked := reflect.New(info.checkedType)
-		if err := mapstructureDecode(item.Interface(), checked.Interface(), lggr); err != nil {
+		if err := mapstructureDecode(item.Interface(), checked.Interface()); err != nil {
 			return nil, err
 		}
 		item = reflect.NewAt(info.nativeType, checked.UnsafePointer())
@@ -111,11 +100,12 @@ func encodeItem(item reflect.Value, info *codecEntry, lggr logger.Logger) ([]byt
 }
 
 func pack(info *codecEntry, values ...any) ([]byte, error) {
-	if bytes, err := info.Args.Pack(values...); err == nil {
-		withPrefix := make([]byte, 0, len(info.encodingPrefix)+len(bytes))
-		withPrefix = append(withPrefix, info.encodingPrefix...)
-		return append(withPrefix, bytes...), nil
+	bytes, err := info.Args.Pack(values...)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", commontypes.ErrInvalidType, err)
 	}
 
-	return nil, commontypes.ErrInvalidType
+	withPrefix := make([]byte, 0, len(info.encodingPrefix)+len(bytes))
+	withPrefix = append(withPrefix, info.encodingPrefix...)
+	return append(withPrefix, bytes...), nil
 }

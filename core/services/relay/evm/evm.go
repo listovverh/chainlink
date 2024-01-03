@@ -12,7 +12,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/jmoiron/sqlx"
 	pkgerrors "github.com/pkg/errors"
-	"go.uber.org/multierr"
 	"golang.org/x/exp/maps"
 
 	"github.com/smartcontractkit/libocr/gethwrappers2/ocr2aggregator"
@@ -453,27 +452,22 @@ func newContractTransmitter(lggr logger.Logger, rargs commontypes.RelayArgs, tra
 
 func (r *Relayer) NewMedianProvider(rargs commontypes.RelayArgs, pargs commontypes.PluginArgs) (commontypes.MedianProvider, error) {
 	lggr := r.lggr.Named("MedianProvider").Named(rargs.ExternalJobID.String())
-	lggr.Infof("!!!!!!!!\nIn new median provider\n%s\n!!!!!!!!\n", string(rargs.RelayConfig))
 	relayOpts := types.NewRelayOpts(rargs)
 	relayConfig, err := relayOpts.RelayConfig()
 	if err != nil {
-		lggr.Infof("!!!!!!!!\nfailed to get relay config: %w\n!!!!!!!!\n", err)
 		return nil, fmt.Errorf("failed to get relay config: %w", err)
 	}
 	expectedChainID := relayConfig.ChainID.String()
 	if expectedChainID != r.chain.ID().String() {
-		lggr.Infof("!!!!!!!!\nwrong chain id %s\n!!!!!!!!\n", r.chain.ID().String())
 		return nil, fmt.Errorf("internal error: chain id in spec does not match this relayer's chain: have %s expected %s", relayConfig.ChainID.String(), r.chain.ID().String())
 	}
 	if !common.IsHexAddress(relayOpts.ContractID) {
-		lggr.Infof("!!!!!!!!\ninvalid contract id %s\n!!!!!!!!\n", relayOpts.ContractID)
 		return nil, fmt.Errorf("invalid contractID %s, expected hex address", relayOpts.ContractID)
 	}
 	contractID := common.HexToAddress(relayOpts.ContractID)
 
 	configWatcher, err := newConfigProvider(lggr, r.chain, relayOpts, r.eventBroadcaster)
 	if err != nil {
-		lggr.Infof("!!!!!!!!\nconfig watcher %s\n!!!!!!!!\n", configWatcher)
 		return nil, err
 	}
 
@@ -489,6 +483,7 @@ func (r *Relayer) NewMedianProvider(rargs commontypes.RelayArgs, pargs commontyp
 	}
 
 	medianProvider := medianProvider{
+		lggr:                lggr.Named("MedianProvider"),
 		configWatcher:       configWatcher,
 		reportCodec:         reportCodec,
 		contractTransmitter: contractTransmitter,
@@ -498,15 +493,12 @@ func (r *Relayer) NewMedianProvider(rargs commontypes.RelayArgs, pargs commontyp
 	// allow fallback until chain reader is default and median contract is removed, but still log just in case
 	var chainReaderService ChainReaderService
 	if relayConfig.ChainReader != nil {
-		b := Bindings{
-			// TODO BCF-2837: clean up the hard-coded values.
-			"median": {
-				"LatestTransmissionDetails": &addrEvtBinding{addr: contractID},
-				"LatestRoundRequested":      &addrEvtBinding{addr: contractID},
-			},
+		if chainReaderService, err = NewChainReaderService(lggr, r.chain.LogPoller(), r.chain, *relayConfig.ChainReader); err != nil {
+			return nil, err
 		}
 
-		if chainReaderService, err = NewChainReaderService(lggr, r.chain.LogPoller(), b, r.chain, *relayConfig.ChainReader); err != nil {
+		boundContracts := []commontypes.BoundContract{{Name: "median", Pending: true, Address: contractID.String()}}
+		if err = chainReaderService.Bind(context.Background(), boundContracts); err != nil {
 			return nil, err
 		}
 	} else {
@@ -515,10 +507,8 @@ func (r *Relayer) NewMedianProvider(rargs commontypes.RelayArgs, pargs commontyp
 	medianProvider.chainReader = chainReaderService
 
 	if relayConfig.Codec != nil {
-		lggr.Infof("!!!!!!!!\nCodec config found\n%#v\n!!!!!!!!\n", relayConfig.Codec)
-		medianProvider.codec, err = NewCodec(*relayConfig.Codec, lggr)
+		medianProvider.codec, err = NewCodec(*relayConfig.Codec)
 		if err != nil {
-			lggr.Infof("!!!!!!!!\nfailed to make new codec\n%v\n!!!!!!!!\n", err)
 			return nil, err
 		}
 	} else {
@@ -528,9 +518,17 @@ func (r *Relayer) NewMedianProvider(rargs commontypes.RelayArgs, pargs commontyp
 	return &medianProvider, nil
 }
 
+func (r *Relayer) NewAutomationProvider(rargs commontypes.RelayArgs, pargs commontypes.PluginArgs) (commontypes.AutomationProvider, error) {
+	lggr := r.lggr.Named("AutomationProvider").Named(rargs.ExternalJobID.String())
+	ocr2keeperRelayer := NewOCR2KeeperRelayer(r.db, r.chain, lggr.Named("OCR2KeeperRelayer"), r.ks.Eth())
+
+	return ocr2keeperRelayer.NewOCR2KeeperProvider(rargs, pargs)
+}
+
 var _ commontypes.MedianProvider = (*medianProvider)(nil)
 
 type medianProvider struct {
+	lggr                logger.Logger
 	configWatcher       *configWatcher
 	contractTransmitter ContractTransmitter
 	reportCodec         median.ReportCodec
@@ -540,30 +538,27 @@ type medianProvider struct {
 	ms                  services.MultiStart
 }
 
-func (p *medianProvider) Name() string {
-	return "EVM.MedianProvider"
-}
+func (p *medianProvider) Name() string { return p.lggr.Name() }
 
 func (p *medianProvider) Start(ctx context.Context) error {
-	if p.chainReader == nil {
-		return p.ms.Start(ctx, p.configWatcher, p.contractTransmitter)
+	srvcs := []services.StartClose{p.configWatcher, p.contractTransmitter, p.medianContract}
+	if p.chainReader != nil {
+		srvcs = append(srvcs, p.chainReader)
 	}
 
-	return p.ms.Start(ctx, p.configWatcher, p.contractTransmitter, p.chainReader)
+	return p.ms.Start(ctx, srvcs...)
 }
 
-func (p *medianProvider) Close() error {
-	return p.ms.Close()
-}
+func (p *medianProvider) Close() error { return p.ms.Close() }
 
-func (p *medianProvider) Ready() error {
-	return multierr.Combine(p.configWatcher.Ready(), p.contractTransmitter.Ready())
-}
+func (p *medianProvider) Ready() error { return nil }
 
 func (p *medianProvider) HealthReport() map[string]error {
-	report := p.configWatcher.HealthReport()
-	services.CopyHealth(report, p.contractTransmitter.HealthReport())
-	return report
+	hp := map[string]error{p.Name(): p.Ready()}
+	services.CopyHealth(hp, p.configWatcher.HealthReport())
+	services.CopyHealth(hp, p.contractTransmitter.HealthReport())
+	services.CopyHealth(hp, p.medianContract.HealthReport())
+	return hp
 }
 
 func (p *medianProvider) ContractTransmitter() ocrtypes.ContractTransmitter {

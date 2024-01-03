@@ -1,7 +1,5 @@
 package evm_test
 
-//go:generate ./testfiles/chainlink_reader_test_setup.sh
-
 import (
 	"crypto/ecdsa"
 	"math"
@@ -27,11 +25,11 @@ import (
 	"github.com/smartcontractkit/chainlink/v2/core/chains/evm/client"
 	"github.com/smartcontractkit/chainlink/v2/core/chains/evm/logpoller"
 	"github.com/smartcontractkit/chainlink/v2/core/chains/legacyevm/mocks"
+	"github.com/smartcontractkit/chainlink/v2/core/gethwrappers/generated/chain_reader_example"
 	"github.com/smartcontractkit/chainlink/v2/core/internal/testutils"
 	"github.com/smartcontractkit/chainlink/v2/core/internal/testutils/pgtest"
 	"github.com/smartcontractkit/chainlink/v2/core/logger"
 	"github.com/smartcontractkit/chainlink/v2/core/services/relay/evm"
-	"github.com/smartcontractkit/chainlink/v2/core/services/relay/evm/testfiles"
 	"github.com/smartcontractkit/chainlink/v2/core/services/relay/evm/types"
 )
 
@@ -49,7 +47,7 @@ type chainReaderInterfaceTester struct {
 	auth        *bind.TransactOpts
 	sim         *backends.SimulatedBackend
 	pk          *ecdsa.PrivateKey
-	evmTest     *testfiles.Testfiles
+	evmTest     *chain_reader_example.LatestValueHolder
 	cr          evm.ChainReaderService
 }
 
@@ -75,7 +73,7 @@ func (it *chainReaderInterfaceTester) Setup(t *testing.T) {
 	it.chainConfig = types.ChainReaderConfig{
 		ChainContractReaders: map[string]types.ChainContractReader{
 			AnyContractName: {
-				ContractABI: testfiles.TestfilesMetaData.ABI,
+				ContractABI: chain_reader_example.LatestValueHolderMetaData.ABI,
 				ChainReaderDefinitions: map[string]types.ChainReaderDefinition{
 					MethodTakingLatestParamsReturningTestStruct: {
 						ChainSpecificName: "GetElementAtIndex",
@@ -111,7 +109,7 @@ func (it *chainReaderInterfaceTester) Setup(t *testing.T) {
 				},
 			},
 			AnySecondContractName: {
-				ContractABI: testfiles.TestfilesMetaData.ABI,
+				ContractABI: chain_reader_example.LatestValueHolderMetaData.ABI,
 				ChainReaderDefinitions: map[string]types.ChainReaderDefinition{
 					MethodReturningUint64: {
 						ChainSpecificName: "GetDifferentPrimitiveValue",
@@ -141,27 +139,12 @@ func (it *chainReaderInterfaceTester) GetChainReader(t *testing.T) clcommontypes
 		return it.cr
 	}
 
-	addr := common.HexToAddress(it.address)
-	addr2 := common.HexToAddress(it.address2)
 	lggr := logger.NullLogger
 	db := pgtest.NewSqlxDB(t)
 	lp := logpoller.NewLogPoller(logpoller.NewORM(testutils.SimulatedChainID, db, lggr, pgtest.NewQConfig(true)), it.chain.Client(), lggr, time.Millisecond, false, 0, 1, 1, 10000)
 	require.NoError(t, lp.Start(ctx))
 	it.chain.On("LogPoller").Return(lp)
-	b := evm.Bindings{
-		AnyContractName: {
-			MethodTakingLatestParamsReturningTestStruct: evm.NewAddrEvtFromAddress(addr),
-			MethodReturningUint64:                       evm.NewAddrEvtFromAddress(addr),
-			DifferentMethodReturningUint64:              evm.NewAddrEvtFromAddress(addr2),
-			MethodReturningUint64Slice:                  evm.NewAddrEvtFromAddress(addr),
-			EventName:                                   evm.NewAddrEvtFromAddress(addr),
-			MethodReturningSeenStruct:                   evm.NewAddrEvtFromAddress(addr),
-		},
-		AnySecondContractName: {
-			MethodReturningUint64: evm.NewAddrEvtFromAddress(addr2),
-		},
-	}
-	cr, err := evm.NewChainReaderService(lggr, lp, b, it.chain, it.chainConfig)
+	cr, err := evm.NewChainReaderService(lggr, lp, it.chain, it.chainConfig)
 	require.NoError(t, err)
 	require.NoError(t, cr.Start(ctx))
 	it.cr = cr
@@ -169,18 +152,25 @@ func (it *chainReaderInterfaceTester) GetChainReader(t *testing.T) clcommontypes
 }
 
 func (it *chainReaderInterfaceTester) SetLatestValue(t *testing.T, testStruct *TestStruct) {
-	it.sendTxWithTestStruct(t, testStruct, (*testfiles.TestfilesTransactor).AddTestStruct)
+	it.sendTxWithTestStruct(t, testStruct, (*chain_reader_example.LatestValueHolderTransactor).AddTestStruct)
 }
 
 func (it *chainReaderInterfaceTester) TriggerEvent(t *testing.T, testStruct *TestStruct) {
-	it.sendTxWithTestStruct(t, testStruct, (*testfiles.TestfilesTransactor).TriggerEvent)
+	it.sendTxWithTestStruct(t, testStruct, (*chain_reader_example.LatestValueHolderTransactor).TriggerEvent)
 }
 
-type testStructFn = func(*testfiles.TestfilesTransactor, *bind.TransactOpts, int32, string, uint8, [32]uint8, common.Address, []common.Address, *big.Int, testfiles.MidLevelTestStruct) (*evmtypes.Transaction, error)
+func (it *chainReaderInterfaceTester) GetBindings(t *testing.T) []clcommontypes.BoundContract {
+	return []clcommontypes.BoundContract{
+		{Name: AnyContractName, Address: it.address, Pending: true},
+		{Name: AnySecondContractName, Address: it.address2, Pending: true},
+	}
+}
+
+type testStructFn = func(*chain_reader_example.LatestValueHolderTransactor, *bind.TransactOpts, int32, string, uint8, [32]uint8, common.Address, []common.Address, *big.Int, chain_reader_example.MidLevelTestStruct) (*evmtypes.Transaction, error)
 
 func (it *chainReaderInterfaceTester) sendTxWithTestStruct(t *testing.T, testStruct *TestStruct, fn testStructFn) {
 	tx, err := fn(
-		&it.evmTest.TestfilesTransactor,
+		&it.evmTest.LatestValueHolderTransactor,
 		it.auth,
 		testStruct.Field,
 		testStruct.DifferentField,
@@ -240,7 +230,7 @@ func (it *chainReaderInterfaceTester) deployNewContract(t *testing.T) string {
 	// Not sure if there's a better way to get it.
 	it.auth.GasLimit = 10552800
 
-	address, tx, ts, err := testfiles.DeployTestfiles(it.auth, it.sim)
+	address, tx, ts, err := chain_reader_example.DeployLatestValueHolder(it.auth, it.sim)
 
 	require.NoError(t, err)
 	it.sim.Commit()
@@ -281,7 +271,7 @@ func argsFromTestStruct(ts TestStruct) []any {
 		ts.DifferentField,
 		uint8(ts.OracleID),
 		getOracleIDs(ts),
-		[32]byte(ts.Account),
+		common.Address(ts.Account),
 		getAccounts(ts),
 		ts.BigField,
 		midToInternalType(ts.NestedStruct),
@@ -296,8 +286,8 @@ func getOracleIDs(first TestStruct) [32]byte {
 	return oracleIDs
 }
 
-func toInternalType(testStruct TestStruct) testfiles.TestStruct {
-	return testfiles.TestStruct{
+func toInternalType(testStruct TestStruct) chain_reader_example.TestStruct {
+	return chain_reader_example.TestStruct{
 		Field:          testStruct.Field,
 		DifferentField: testStruct.DifferentField,
 		OracleId:       byte(testStruct.OracleID),
@@ -309,10 +299,10 @@ func toInternalType(testStruct TestStruct) testfiles.TestStruct {
 	}
 }
 
-func midToInternalType(m MidLevelTestStruct) testfiles.MidLevelTestStruct {
-	return testfiles.MidLevelTestStruct{
+func midToInternalType(m MidLevelTestStruct) chain_reader_example.MidLevelTestStruct {
+	return chain_reader_example.MidLevelTestStruct{
 		FixedBytes: m.FixedBytes,
-		Inner: testfiles.InnerTestStruct{
+		Inner: chain_reader_example.InnerTestStruct{
 			I: int64(m.Inner.I),
 			S: m.Inner.S,
 		},

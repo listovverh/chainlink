@@ -15,11 +15,11 @@ import (
 
 	commontypes "github.com/smartcontractkit/chainlink-common/pkg/types"
 
-	"github.com/smartcontractkit/chainlink/v2/core/logger"
 	"github.com/smartcontractkit/chainlink/v2/core/services/relay/evm/types"
 )
 
 // decodeAccountHook allows strings to be converted to [32]byte allowing config to represent them as 0x...
+// EpochToTimeHook allows times to be converted to and from integer types
 // BigIntHook allows *big.Int to be represented as any integer type or a string and to go back to them.
 // Useful for config, or if when a model may use a go type that isn't a *big.Int when Pack expects one.
 // Eg: int32 in a go struct from a plugin could require a *big.Int in Pack for int24, if it fits, we shouldn't care.
@@ -28,8 +28,7 @@ import (
 // it was a *big.Int
 var evmDecoderHooks = []mapstructure.DecodeHookFunc{decodeAccountHook, codec.EpochToTimeHook, codec.BigIntHook, codec.SliceToArrayVerifySizeHook, sizeVerifyBigIntHook}
 
-func NewCodec(conf types.CodecConfig, lggr logger.Logger) (commontypes.RemoteCodec, error) {
-	fmt.Printf("!!!!!!!!!!\nNewCodec\n%#v\n!!!!!!!!!!\n", conf.ChainCodecConfigs)
+func NewCodec(conf types.CodecConfig) (commontypes.RemoteCodec, error) {
 	parsed := &parsedTypes{
 		encoderDefs: map[string]*codecEntry{},
 		decoderDefs: map[string]*codecEntry{},
@@ -38,19 +37,16 @@ func NewCodec(conf types.CodecConfig, lggr logger.Logger) (commontypes.RemoteCod
 	for k, v := range conf.ChainCodecConfigs {
 		args := abi.Arguments{}
 		if err := json.Unmarshal(([]byte)(v.TypeAbi), &args); err != nil {
-			fmt.Printf("!!!!!!!!!!\nNewCodec json abi/n%s/n err\n%#v\n!!!!!!!!!!\n", v.TypeAbi, err)
 			return nil, err
 		}
 
 		mod, err := v.ModifierConfigs.ToModifier(evmDecoderHooks...)
 		if err != nil {
-			fmt.Printf("!!!!!!!!!!\nNewCodec mod err\n%#v\n!!!!!!!!!!\n%", err)
 			return nil, err
 		}
 
 		item := &codecEntry{Args: args, mod: mod}
 		if err = item.Init(); err != nil {
-			fmt.Printf("!!!!!!!!!!\nNewCodec init err\n%#v\n!!!!!!!!!!\n%", err)
 			return nil, err
 		}
 
@@ -58,7 +54,7 @@ func NewCodec(conf types.CodecConfig, lggr logger.Logger) (commontypes.RemoteCod
 		parsed.decoderDefs[k] = item
 	}
 
-	return parsed.toCodec(lggr)
+	return parsed.toCodec()
 }
 
 type evmCodec struct {
@@ -77,7 +73,7 @@ func (c *evmCodec) CreateType(itemType string, forEncoding bool) (any, error) {
 
 	def, ok := itemTypes[itemType]
 	if !ok {
-		return nil, commontypes.ErrInvalidType
+		return nil, fmt.Errorf("%w: cannot find type name %s", commontypes.ErrInvalidType, itemType)
 	}
 
 	return reflect.New(def.checkedType).Interface(), nil
@@ -119,7 +115,7 @@ func decodeAccountHook(from, to reflect.Type, data any) (any, error) {
 		} else if len(decoded) != common.AddressLength {
 			return nil, fmt.Errorf(
 				"%w: wrong number size for address expected %v got %v",
-				commontypes.ErrWrongNumberOfElements,
+				commontypes.ErrSliceWrongLen,
 				common.AddressLength, len(decoded))
 		}
 		return common.Address(decoded), nil

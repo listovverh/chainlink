@@ -5,7 +5,7 @@ import "reflect"
 type bytes1 [1]byte
 
 func init() {
-	typeMap["bytes1"] = &AbiEncodingType{
+	typeMap["bytes1"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([1]byte{}),
 		Checked: reflect.TypeOf(bytes1{}),
 	}
@@ -14,7 +14,7 @@ func init() {
 type bytes2 [2]byte
 
 func init() {
-	typeMap["bytes2"] = &AbiEncodingType{
+	typeMap["bytes2"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([2]byte{}),
 		Checked: reflect.TypeOf(bytes2{}),
 	}
@@ -23,7 +23,7 @@ func init() {
 type bytes3 [3]byte
 
 func init() {
-	typeMap["bytes3"] = &AbiEncodingType{
+	typeMap["bytes3"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([3]byte{}),
 		Checked: reflect.TypeOf(bytes3{}),
 	}
@@ -32,7 +32,7 @@ func init() {
 type bytes4 [4]byte
 
 func init() {
-	typeMap["bytes4"] = &AbiEncodingType{
+	typeMap["bytes4"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([4]byte{}),
 		Checked: reflect.TypeOf(bytes4{}),
 	}
@@ -41,7 +41,7 @@ func init() {
 type bytes5 [5]byte
 
 func init() {
-	typeMap["bytes5"] = &AbiEncodingType{
+	typeMap["bytes5"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([5]byte{}),
 		Checked: reflect.TypeOf(bytes5{}),
 	}
@@ -50,7 +50,7 @@ func init() {
 type bytes6 [6]byte
 
 func init() {
-	typeMap["bytes6"] = &AbiEncodingType{
+	typeMap["bytes6"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([6]byte{}),
 		Checked: reflect.TypeOf(bytes6{}),
 	}
@@ -59,7 +59,7 @@ func init() {
 type bytes7 [7]byte
 
 func init() {
-	typeMap["bytes7"] = &AbiEncodingType{
+	typeMap["bytes7"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([7]byte{}),
 		Checked: reflect.TypeOf(bytes7{}),
 	}
@@ -68,7 +68,7 @@ func init() {
 type bytes8 [8]byte
 
 func init() {
-	typeMap["bytes8"] = &AbiEncodingType{
+	typeMap["bytes8"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([8]byte{}),
 		Checked: reflect.TypeOf(bytes8{}),
 	}
@@ -77,7 +77,7 @@ func init() {
 type bytes9 [9]byte
 
 func init() {
-	typeMap["bytes9"] = &AbiEncodingType{
+	typeMap["bytes9"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([9]byte{}),
 		Checked: reflect.TypeOf(bytes9{}),
 	}
@@ -86,7 +86,7 @@ func init() {
 type bytes10 [10]byte
 
 func init() {
-	typeMap["bytes10"] = &AbiEncodingType{
+	typeMap["bytes10"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([10]byte{}),
 		Checked: reflect.TypeOf(bytes10{}),
 	}
@@ -95,7 +95,7 @@ func init() {
 type bytes11 [11]byte
 
 func init() {
-	typeMap["bytes11"] = &AbiEncodingType{
+	typeMap["bytes11"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([11]byte{}),
 		Checked: reflect.TypeOf(bytes11{}),
 	}
@@ -104,7 +104,7 @@ func init() {
 type bytes12 [12]byte
 
 func init() {
-	typeMap["bytes12"] = &AbiEncodingType{
+	typeMap["bytes12"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([12]byte{}),
 		Checked: reflect.TypeOf(bytes12{}),
 	}
@@ -113,7 +113,7 @@ func init() {
 type bytes13 [13]byte
 
 func init() {
-	typeMap["bytes13"] = &AbiEncodingType{
+	typeMap["bytes13"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([13]byte{}),
 		Checked: reflect.TypeOf(bytes13{}),
 	}
@@ -122,7 +122,7 @@ func init() {
 type bytes14 [14]byte
 
 func init() {
-	typeMap["bytes14"] = &AbiEncodingType{
+	typeMap["bytes14"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([14]byte{}),
 		Checked: reflect.TypeOf(bytes14{}),
 	}
@@ -131,7 +131,7 @@ func init() {
 type bytes15 [15]byte
 
 func init() {
-	typeMap["bytes15"] = &AbiEncodingType{
+	typeMap["bytes15"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([15]byte{}),
 		Checked: reflect.TypeOf(bytes15{}),
 	}
@@ -140,7 +140,7 @@ func init() {
 type bytes16 [16]byte
 
 func init() {
-	typeMap["bytes16"] = &AbiEncodingType{
+	typeMap["bytes16"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([16]byte{}),
 		Checked: reflect.TypeOf(bytes16{}),
 	}
@@ -149,7 +149,7 @@ func init() {
 type bytes17 [17]byte
 
 func init() {
-	typeMap["bytes17"] = &AbiEncodingType{
+	typeMap["bytes17"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([17]byte{}),
 		Checked: reflect.TypeOf(bytes17{}),
 	}
@@ -158,7 +158,7 @@ func init() {
 type bytes18 [18]byte
 
 func init() {
-	typeMap["bytes18"] = &AbiEncodingType{
+	typeMap["bytes18"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([18]byte{}),
 		Checked: reflect.TypeOf(bytes18{}),
 	}
@@ -167,7 +167,7 @@ func init() {
 type bytes19 [19]byte
 
 func init() {
-	typeMap["bytes19"] = &AbiEncodingType{
+	typeMap["bytes19"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([19]byte{}),
 		Checked: reflect.TypeOf(bytes19{}),
 	}
@@ -176,7 +176,7 @@ func init() {
 type bytes20 [20]byte
 
 func init() {
-	typeMap["bytes20"] = &AbiEncodingType{
+	typeMap["bytes20"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([20]byte{}),
 		Checked: reflect.TypeOf(bytes20{}),
 	}
@@ -185,7 +185,7 @@ func init() {
 type bytes21 [21]byte
 
 func init() {
-	typeMap["bytes21"] = &AbiEncodingType{
+	typeMap["bytes21"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([21]byte{}),
 		Checked: reflect.TypeOf(bytes21{}),
 	}
@@ -194,7 +194,7 @@ func init() {
 type bytes22 [22]byte
 
 func init() {
-	typeMap["bytes22"] = &AbiEncodingType{
+	typeMap["bytes22"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([22]byte{}),
 		Checked: reflect.TypeOf(bytes22{}),
 	}
@@ -203,7 +203,7 @@ func init() {
 type bytes23 [23]byte
 
 func init() {
-	typeMap["bytes23"] = &AbiEncodingType{
+	typeMap["bytes23"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([23]byte{}),
 		Checked: reflect.TypeOf(bytes23{}),
 	}
@@ -212,7 +212,7 @@ func init() {
 type bytes24 [24]byte
 
 func init() {
-	typeMap["bytes24"] = &AbiEncodingType{
+	typeMap["bytes24"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([24]byte{}),
 		Checked: reflect.TypeOf(bytes24{}),
 	}
@@ -221,7 +221,7 @@ func init() {
 type bytes25 [25]byte
 
 func init() {
-	typeMap["bytes25"] = &AbiEncodingType{
+	typeMap["bytes25"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([25]byte{}),
 		Checked: reflect.TypeOf(bytes25{}),
 	}
@@ -230,7 +230,7 @@ func init() {
 type bytes26 [26]byte
 
 func init() {
-	typeMap["bytes26"] = &AbiEncodingType{
+	typeMap["bytes26"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([26]byte{}),
 		Checked: reflect.TypeOf(bytes26{}),
 	}
@@ -239,7 +239,7 @@ func init() {
 type bytes27 [27]byte
 
 func init() {
-	typeMap["bytes27"] = &AbiEncodingType{
+	typeMap["bytes27"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([27]byte{}),
 		Checked: reflect.TypeOf(bytes27{}),
 	}
@@ -248,7 +248,7 @@ func init() {
 type bytes28 [28]byte
 
 func init() {
-	typeMap["bytes28"] = &AbiEncodingType{
+	typeMap["bytes28"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([28]byte{}),
 		Checked: reflect.TypeOf(bytes28{}),
 	}
@@ -257,7 +257,7 @@ func init() {
 type bytes29 [29]byte
 
 func init() {
-	typeMap["bytes29"] = &AbiEncodingType{
+	typeMap["bytes29"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([29]byte{}),
 		Checked: reflect.TypeOf(bytes29{}),
 	}
@@ -266,7 +266,7 @@ func init() {
 type bytes30 [30]byte
 
 func init() {
-	typeMap["bytes30"] = &AbiEncodingType{
+	typeMap["bytes30"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([30]byte{}),
 		Checked: reflect.TypeOf(bytes30{}),
 	}
@@ -275,7 +275,7 @@ func init() {
 type bytes31 [31]byte
 
 func init() {
-	typeMap["bytes31"] = &AbiEncodingType{
+	typeMap["bytes31"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([31]byte{}),
 		Checked: reflect.TypeOf(bytes31{}),
 	}
@@ -284,7 +284,7 @@ func init() {
 type bytes32 [32]byte
 
 func init() {
-	typeMap["bytes32"] = &AbiEncodingType{
+	typeMap["bytes32"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([32]byte{}),
 		Checked: reflect.TypeOf(bytes32{}),
 	}
@@ -293,7 +293,7 @@ func init() {
 type bytes0 [0]byte
 
 func init() {
-	typeMap["bytes0"] = &AbiEncodingType{
+	typeMap["bytes0"] = &ABIEncodingType{
 		Native:  reflect.TypeOf([0]byte{}),
 		Checked: reflect.TypeOf(bytes0{}),
 	}
