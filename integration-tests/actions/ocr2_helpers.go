@@ -450,15 +450,14 @@ func StartNewOCR2Round(
 	return nil
 }
 
-// StartNewOCR2RoundChainReaderDemo requests a new round from the ocr2 contracts and waits for confirmation
-func StartNewOCR2RoundChainReaderDemo(
+// WatchNewOCR2RoundChainReaderDemo requests a new round from the ocr2 contracts and waits for confirmation
+func WatchNewOCR2RoundChainReaderDemo(
 	roundNumber int64,
 	ocrInstances []contracts.OffchainAggregatorV2,
 	client blockchain.EVMClient,
 	timeout time.Duration,
 	logger zerolog.Logger,
 ) error {
-	time.Sleep(5 * time.Second)
 	for i := 0; i < len(ocrInstances); i++ {
 		err := ocrInstances[i].RequestNewRound()
 		if err != nil {

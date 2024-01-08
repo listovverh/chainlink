@@ -2156,6 +2156,9 @@ func (e EthereumOffchainAggregatorV2ChainReaderDemo) GetRound(ctx context.Contex
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Printf("Get Round data \n RoundId %s \n StartedAt %v \n UpdatedAt %d \n AnsweredInRound %d \n Answer: %d \n\n ", data.RoundId, data.StartedAt, data.UpdatedAt, data.AnsweredInRound, data.Answer)
+
 	return &RoundData{
 		RoundId:         data.RoundId,
 		StartedAt:       data.StartedAt,
@@ -2250,6 +2253,8 @@ func (e *EthereumOffchainAggregatorV2) GetRound(ctx context.Context, roundID *bi
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("Get Round data \n RoundId %s \n StartedAt %v \n UpdatedAt %d \n AnsweredInRound %d \n Answer: %d \n\n ", data.RoundId, data.StartedAt, data.UpdatedAt, data.AnsweredInRound, data.Answer)
+
 	return &RoundData{
 		RoundId:         data.RoundId,
 		StartedAt:       data.StartedAt,

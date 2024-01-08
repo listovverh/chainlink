@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/smartcontractkit/chainlink-testing-framework/utils/testcontext"
+	"github.com/smartcontractkit/chainlink/v2/core/config/env"
 
 	"github.com/smartcontractkit/chainlink-testing-framework/logging"
 	"github.com/smartcontractkit/chainlink-testing-framework/utils/ptr"
@@ -39,10 +40,11 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 			node.WithP2Pv2(),
 			node.WithTracing(),
 			func(c *chainlink.Config) {
-				c.Core.WebServer.HTTPMaxSize = ptr.Ptr(utils.FileSize(65536))
+				c.Core.WebServer.HTTPMaxSize = ptr.Ptr(utils.FileSize(165536))
 			},
 		)).
 		WithCLNodes(6).
+		WithCLNodeOptions(test_env.WithNodeEnvVars(map[string]string{string(env.MedianPluginCmd): ""})).
 		WithFunding(big.NewFloat(.1)).
 		WithStandardCleanup().
 		WithLogStream().
@@ -92,50 +94,24 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 	err = env.MockAdapter.SetAdapterBasedIntValuePath("ocr2", []string{http.MethodGet, http.MethodPost}, 50)
 	require.NoError(t, err)
 
-	err = actions.StartNewOCR2RoundChainReaderDemo(1, aggregatorContracts, env.EVMClient, time.Minute*5, l)
-
+	err = actions.WatchNewOCR2RoundChainReaderDemo(1, aggregatorContracts, env.EVMClient, time.Minute*5, l)
 	require.NoError(t, err, "Error starting new OCR2 round")
-	fmt.Println("round done")
-
 	roundData, err := aggregatorContracts[0].GetRound(testcontext.Get(t), big.NewInt(1))
 	require.NoError(t, err, "Getting latest answer from OCR contract shouldn't fail")
-	fmt.Println("get latest")
-
-	fmt.Printf("want 50 it's %v\n", roundData.Answer.Int64())
-
-	fmt.Println("answer")
+	require.Equal(t, int64(5), roundData.Answer.Int64(),
+		"Expected latest answer from OCR contract to be 5 but got %d",
+		roundData.Answer.Int64(),
+	)
 
 	err = env.MockAdapter.SetAdapterBasedIntValuePath("ocr2", []string{http.MethodGet, http.MethodPost}, 10)
 	require.NoError(t, err)
-	fmt.Println("adapter")
-
-	err = actions.StartNewOCR2RoundChainReaderDemo(2, aggregatorContracts, env.EVMClient, time.Minute*5, l)
+	err = actions.WatchNewOCR2Round(2, aggregatorContracts, env.EVMClient, time.Minute*5, l)
 	require.NoError(t, err)
-	fmt.Println("new round 2")
 
 	roundData, err = aggregatorContracts[0].GetRound(testcontext.Get(t), big.NewInt(2))
 	require.NoError(t, err, "Error getting latest OCR answer")
-	fmt.Println("got answer 2")
-
-	fmt.Printf("want 10 it's %v\n", roundData.Answer.Int64())
-
-	err = env.MockAdapter.SetAdapterBasedIntValuePath("ocr2", []string{http.MethodGet, http.MethodPost}, 15)
-	require.NoError(t, err)
-	fmt.Println("adapter 2")
-
-	err = actions.StartNewOCR2RoundChainReaderDemo(3, aggregatorContracts, env.EVMClient, time.Minute*5, l)
-	require.NoError(t, err)
-	fmt.Println("new round 3")
-
-	roundData, err = aggregatorContracts[0].GetRound(testcontext.Get(t), big.NewInt(3))
-	require.NoError(t, err, "Error getting latest OCR answer")
-	fmt.Println("got answer 3")
-
-	fmt.Printf("want 15 it's %v\n", roundData.Answer.Int64())
-
-	/*require.Equal(t, int64(10), roundData.Answer.Int64(),
+	require.Equal(t, int64(10), roundData.Answer.Int64(),
 		"Expected latest answer from OCR contract to be 10 but got %d",
 		roundData.Answer.Int64(),
-	)*/
-	require.Fail(t, "Capture logs")
+	)
 }
