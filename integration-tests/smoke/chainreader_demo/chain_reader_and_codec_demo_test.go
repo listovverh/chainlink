@@ -76,25 +76,17 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 	ocrOffchainOptions := contracts.DefaultOffChainAggregatorOptions()
 	aggregatorContracts, err := actions.DeployChainReaderDemoOCRv2Contracts(1, linkToken, env.ContractDeployer, transmitters, env.EVMClient, ocrOffchainOptions)
 	require.NoError(t, err, "Error deploying OCRv2 aggregator contracts")
-	for _, contract := range aggregatorContracts {
-		fmt.Printf("type is %T \n", contract)
-	}
+
 	err = actions.CreateOCRv2JobsLocal(aggregatorContracts, bootstrapNode, workerNodes, env.MockAdapter, "ocr2", 5, env.EVMClient.GetChainID().Uint64(), false, true)
 	require.NoError(t, err, "Error creating OCRv2 jobs")
-	fmt.Println("Jobs done")
 
 	ocrv2Config, err := actions.BuildMedianOCR2ConfigLocal(workerNodes, ocrOffchainOptions)
 	require.NoError(t, err, "Error building OCRv2 config")
-	fmt.Println("built local")
 
 	err = actions.ConfigureOCRv2AggregatorContracts(env.EVMClient, ocrv2Config, aggregatorContracts)
 	require.NoError(t, err, "Error configuring OCRv2 aggregator contracts")
-	fmt.Println("built agg")
 
-	err = env.MockAdapter.SetAdapterBasedIntValuePath("ocr2", []string{http.MethodGet, http.MethodPost}, 50)
-	require.NoError(t, err)
-
-	err = actions.WatchNewOCR2RoundChainReaderDemo(1, aggregatorContracts, env.EVMClient, time.Minute*5, l)
+	err = actions.WatchNewOCR2Round(1, aggregatorContracts, env.EVMClient, time.Minute*5, l)
 	require.NoError(t, err, "Error starting new OCR2 round")
 	roundData, err := aggregatorContracts[0].GetRound(testcontext.Get(t), big.NewInt(1))
 	require.NoError(t, err, "Getting latest answer from OCR contract shouldn't fail")

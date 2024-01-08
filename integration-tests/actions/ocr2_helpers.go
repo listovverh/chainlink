@@ -459,10 +459,6 @@ func WatchNewOCR2RoundChainReaderDemo(
 	logger zerolog.Logger,
 ) error {
 	for i := 0; i < len(ocrInstances); i++ {
-		err := ocrInstances[i].RequestNewRound()
-		if err != nil {
-			return fmt.Errorf("requesting new OCR2 round %d have failed: %w", i+1, err)
-		}
 		start := time.Now()
 		for {
 			time.Sleep(time.Second * 5)
