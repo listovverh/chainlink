@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/smartcontractkit/chainlink-testing-framework/utils/testcontext"
+
 	"github.com/smartcontractkit/chainlink/v2/core/config/env"
 
 	"github.com/smartcontractkit/chainlink-testing-framework/logging"
@@ -23,6 +24,19 @@ import (
 	"github.com/smartcontractkit/chainlink/integration-tests/docker/test_env"
 	"github.com/smartcontractkit/chainlink/integration-tests/types/config/node"
 )
+
+func validateRoundData(t *testing.T, aggregatorContracts []contracts.OffchainAggregatorV2, expectedRound int64, expectedAnswer int64) {
+	for i := 0; i < len(aggregatorContracts); i++ {
+		roundData, err := aggregatorContracts[i].GetLatestRound(testcontext.Get(t))
+		require.NoError(t, err, "Error getting latest OCR answer")
+		require.Equal(t, expectedRound, roundData.RoundId.Int64(),
+			"Expected latest round from OCR2 contract to be %d but got %d", expectedRound,
+			roundData.RoundId.Int64)
+		require.Equal(t, expectedAnswer, roundData.Answer.Int64(),
+			"Expected latest answer from OCR2 contract to be %d but got %d", expectedAnswer,
+			roundData.Answer.Int64())
+	}
+}
 
 func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 	t.Parallel()
@@ -87,23 +101,22 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 	require.NoError(t, err, "Error configuring OCRv2 aggregator contracts")
 
 	err = actions.WatchNewOCR2Round(1, aggregatorContracts, env.EVMClient, time.Minute*5, l)
-	require.NoError(t, err, "Error starting new OCR2 round")
-	roundData, err := aggregatorContracts[0].GetRound(testcontext.Get(t), big.NewInt(1))
-	require.NoError(t, err, "Getting latest answer from OCR contract shouldn't fail")
-	require.Equal(t, int64(5), roundData.Answer.Int64(),
-		"Expected latest answer from OCR contract to be 5 but got %d",
-		roundData.Answer.Int64(),
-	)
+	require.NoError(t, err)
+
+	validateRoundData(t, aggregatorContracts, 1, 5)
+
+	err = actions.StartNewOCR2Round(2, aggregatorContracts, env.EVMClient, time.Minute*5, l)
+	require.NoError(t, err, "Error waiting for new OCR2 round to start")
+
+	validateRoundData(t, aggregatorContracts, 2, 5)
 
 	err = env.MockAdapter.SetAdapterBasedIntValuePath("ocr2", []string{http.MethodGet, http.MethodPost}, 10)
 	require.NoError(t, err)
-	err = actions.WatchNewOCR2Round(2, aggregatorContracts, env.EVMClient, time.Minute*5, l)
+	err = actions.WatchNewOCR2Round(3, aggregatorContracts, env.EVMClient, time.Minute*5, l)
 	require.NoError(t, err)
+	validateRoundData(t, aggregatorContracts, 3, 10)
 
-	roundData, err = aggregatorContracts[0].GetRound(testcontext.Get(t), big.NewInt(2))
-	require.NoError(t, err, "Error getting latest OCR answer")
-	require.Equal(t, int64(10), roundData.Answer.Int64(),
-		"Expected latest answer from OCR contract to be 10 but got %d",
-		roundData.Answer.Int64(),
-	)
+	err = actions.StartNewOCR2Round(2, aggregatorContracts, env.EVMClient, time.Minute*5, l)
+	require.NoError(t, err, "Error waiting for new OCR2 round to start")
+	validateRoundData(t, aggregatorContracts, 4, 10)
 }
