@@ -468,12 +468,21 @@ contract OCR2Aggregator is OCR2Abstract, OwnerIsCreator, AggregatorV2V3Interface
    */
     event RequesterAccessControllerSet(AccessControllerInterface old, AccessControllerInterface current);
 
+    /**
+     * @notice emitted to immediately request a new round
+   * @param requester the address of the requester
+   * @param configDigest the latest transmission's configDigest
+   * @param epoch the latest transmission's epoch
+   * @param round the latest transmission's round
+   */
+    event RoundRequested(address indexed requester, bytes32 configDigest, uint32 epoch, uint8 round);
+
+    /* Used for Chain Reader demo purposes*/
     struct RoundRequest {
         address requester;
         bytes32 configDigest;
         uint32 epoch;
         uint8 round;
-        uint32 aggregatorRoundId;
     }
 
     RoundRequest public latestRoundRequest;
@@ -512,10 +521,8 @@ contract OCR2Aggregator is OCR2Abstract, OwnerIsCreator, AggregatorV2V3Interface
    * guarantee of causality between the request and the report at aggregatorRoundId.
    */
     function requestNewRound() external returns (uint80) {
-        require(
-            msg.sender == owner() || s_requesterAccessController.hasAccess(msg.sender, msg.data),
-            "Only owner&requester can call"
-        );
+        require(msg.sender == owner() || s_requesterAccessController.hasAccess(msg.sender, msg.data),
+            "Only owner&requester can call");
 
         uint40 latestEpochAndRound = s_hotVars.latestEpochAndRound;
         uint32 latestAggregatorRoundId = s_hotVars.latestAggregatorRoundId;
@@ -524,10 +531,15 @@ contract OCR2Aggregator is OCR2Abstract, OwnerIsCreator, AggregatorV2V3Interface
             requester: msg.sender,
             configDigest: s_latestConfigDigest,
             epoch: uint32(latestEpochAndRound >> 8),
-            round: uint8(latestEpochAndRound),
-            aggregatorRoundId: latestAggregatorRoundId + 1
+            round: uint8(latestEpochAndRound)
         });
 
+        emit RoundRequested(
+            msg.sender,
+            s_latestConfigDigest,
+            uint32(latestEpochAndRound >> 8),
+            uint8(latestEpochAndRound)
+        );
         return latestAggregatorRoundId + 1;
     }
 
@@ -535,15 +547,13 @@ contract OCR2Aggregator is OCR2Abstract, OwnerIsCreator, AggregatorV2V3Interface
         address requester,
         bytes32 configDigest,
         uint32 epoch,
-        uint8 round,
-        uint32 aggregatorRoundId
+        uint8 round
     ) {
         return (
             latestRoundRequest.requester,
             latestRoundRequest.configDigest,
             latestRoundRequest.epoch,
-            latestRoundRequest.round,
-            latestRoundRequest.aggregatorRoundId
+            latestRoundRequest.round
         );
     }
 

@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"context"
 	"crypto/ed25519"
 	"encoding/hex"
 	"fmt"
@@ -450,36 +449,36 @@ func StartNewOCR2Round(
 	return nil
 }
 
-// WatchNewOCR2RoundChainReaderDemo requests a new round from the ocr2 contracts and waits for confirmation
-func WatchNewOCR2RoundChainReaderDemo(
-	roundNumber int64,
-	ocrInstances []contracts.OffchainAggregatorV2,
-	client blockchain.EVMClient,
-	timeout time.Duration,
-	logger zerolog.Logger,
-) error {
-	for i := 0; i < len(ocrInstances); i++ {
-		start := time.Now()
-		for {
-			time.Sleep(time.Second * 5)
-			ocrInstance := ocrInstances[i].(*contracts.EthereumOffchainAggregatorV2ChainReaderDemo)
-			round, err := ocrInstance.LatestRoundRequested(context.Background())
-			if err != nil {
-				return err
-			}
-
-			if int64(round) == roundNumber {
-				return nil
-			} else if time.Since(start) >= time.Minute*15 {
-				return fmt.Errorf("failed to wait for OCR2 Round %d to complete", roundNumber)
-			} else {
-				fmt.Println("round returned is ", round)
-				fmt.Println("wanted round is ", roundNumber)
-			}
-		}
-	}
-	return nil
-}
+//// WatchNewOCR2RoundChainReaderDemo requests a new round from the ocr2 contracts and waits for confirmation
+//func WatchNewOCR2RoundChainReaderDemo(
+//	roundNumber int64,
+//	ocrInstances []contracts.OffchainAggregatorV2,
+//	client blockchain.EVMClient,
+//	timeout time.Duration,
+//	logger zerolog.Logger,
+//) error {
+//	for i := 0; i < len(ocrInstances); i++ {
+//		start := time.Now()
+//		for {
+//			time.Sleep(time.Second * 5)
+//			ocrInstance := ocrInstances[i].(*contracts.EthereumOffchainAggregatorV2ChainReaderDemo)
+//			round, err := ocrInstance.LatestRoundRequested(context.Background())
+//			if err != nil {
+//				return err
+//			}
+//
+//			if int64(round) == roundNumber {
+//				return nil
+//			} else if time.Since(start) >= time.Minute*15 {
+//				return fmt.Errorf("failed to wait for OCR2 Round %d to complete", roundNumber)
+//			} else {
+//				fmt.Println("round returned is ", round)
+//				fmt.Println("wanted round is ", roundNumber)
+//			}
+//		}
+//	}
+//	return nil
+//}
 
 // WatchNewOCR2Round is the same as StartNewOCR2Round but does NOT explicitly request a new round
 // as that can cause odd behavior in tandem with changing adapter values in OCR2
@@ -493,6 +492,7 @@ func WatchNewOCR2Round(
 	for i := 0; i < len(ocrInstances); i++ {
 		ocrRound := contracts.NewOffchainAggregatorV2RoundConfirmer(ocrInstances[i], big.NewInt(roundNumber), timeout, logger)
 		client.AddHeaderEventSubscription(ocrInstances[i].Address(), ocrRound)
+		fmt.Println("wait for events")
 		err := client.WaitForEvents()
 		if err != nil {
 			return fmt.Errorf("failed to wait for event subscriptions of OCR instance %d: %w", i+1, err)

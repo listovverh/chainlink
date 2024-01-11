@@ -2134,18 +2134,18 @@ func (e EthereumOffchainAggregatorV2ChainReaderDemo) GetLatestRound(ctx context.
 	}, nil
 }
 
-func (e EthereumOffchainAggregatorV2ChainReaderDemo) LatestRoundRequested(ctx context.Context) (uint8, error) {
-	opts := &bind.CallOpts{
-		From:    common.HexToAddress(e.client.GetDefaultWallet().Address()),
-		Context: ctx,
-	}
-	data, err := e.contract.LatestRoundRequested(opts)
-	if err != nil {
-		return 0, err
-	}
-	fmt.Printf("round data %d \n requester %s \n digest %v \n aggroundiD %d \n epoch %d \n\n ", data.Round, data.Requester.String(), data.ConfigDigest, data.AggregatorRoundId, data.Epoch)
-	return uint8(data.AggregatorRoundId), nil
-}
+//func (e EthereumOffchainAggregatorV2ChainReaderDemo) LatestRoundRequested(ctx context.Context) (uint8, error) {
+//	opts := &bind.CallOpts{
+//		From:    common.HexToAddress(e.client.GetDefaultWallet().Address()),
+//		Context: ctx,
+//	}
+//	data, err := e.contract.LatestRoundRequested(opts)
+//	if err != nil {
+//		return 0, err
+//	}
+//	fmt.Printf("round data %d \n requester %s \n digest %v \n aggroundiD %d \n epoch %d \n\n ", data.Round, data.Requester.String(), data.ConfigDigest, data.AggregatorRoundId, data.Epoch)
+//	return uint8(data.AggregatorRoundId), nil
+//}
 
 func (e EthereumOffchainAggregatorV2ChainReaderDemo) GetRound(ctx context.Context, roundID *big.Int) (*RoundData, error) {
 	opts := &bind.CallOpts{
