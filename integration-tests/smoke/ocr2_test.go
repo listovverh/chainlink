@@ -10,15 +10,14 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/smartcontractkit/chainlink-testing-framework/logging"
-	"github.com/smartcontractkit/chainlink-testing-framework/utils/ptr"
 	"github.com/smartcontractkit/chainlink-testing-framework/utils/testcontext"
+
+	"github.com/smartcontractkit/chainlink/v2/core/config/env"
+
 	"github.com/smartcontractkit/chainlink/integration-tests/actions"
 	"github.com/smartcontractkit/chainlink/integration-tests/contracts"
 	"github.com/smartcontractkit/chainlink/integration-tests/docker/test_env"
 	"github.com/smartcontractkit/chainlink/integration-tests/types/config/node"
-	"github.com/smartcontractkit/chainlink/v2/core/config/env"
-	"github.com/smartcontractkit/chainlink/v2/core/services/chainlink"
-	"github.com/smartcontractkit/chainlink/v2/core/utils"
 )
 
 // Tests a basic OCRv2 median feed
@@ -26,16 +25,16 @@ func TestOCRv2Basic(t *testing.T) {
 	t.Parallel()
 
 	noMedianPlugin := map[string]string{string(env.MedianPluginCmd): ""}
-	//medianPlugin := map[string]string{string(env.MedianPluginCmd): "chainlink-feeds"}
+	medianPlugin := map[string]string{string(env.MedianPluginCmd): "chainlink-feeds"}
 	for _, test := range []struct {
 		name                string
 		env                 map[string]string
 		chainReaderAndCodec bool
 	}{
-		//{"legacy", noMedianPlugin, false},
+		{"legacy", noMedianPlugin, false},
 		{"legacy-chain-reader", noMedianPlugin, true},
-		//{"plugins", medianPlugin, false},
-		//{"plugins-chain-reader", medianPlugin, true},
+		{"plugins", medianPlugin, false},
+		{"plugins-chain-reader", medianPlugin, true},
 	} {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
@@ -54,9 +53,6 @@ func TestOCRv2Basic(t *testing.T) {
 					node.WithOCR2(),
 					node.WithP2Pv2(),
 					node.WithTracing(),
-					func(c *chainlink.Config) {
-						c.Core.WebServer.HTTPMaxSize = ptr.Ptr(utils.FileSize(165536))
-					},
 				)).
 				WithCLNodeOptions(test_env.WithNodeEnvVars(test.env)).
 				WithCLNodes(6).
