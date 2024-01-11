@@ -116,7 +116,7 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 	require.NoError(t, err)
 	validateRoundData(t, aggregatorContracts, 3, 10)
 
-	err = actions.StartNewOCR2Round(2, aggregatorContracts, env.EVMClient, time.Minute*5, l)
+	err = actions.StartNewOCR2Round(4, aggregatorContracts, env.EVMClient, time.Minute*5, l)
 	require.NoError(t, err, "Error waiting for new OCR2 round to start")
 	validateRoundData(t, aggregatorContracts, 4, 10)
 }
