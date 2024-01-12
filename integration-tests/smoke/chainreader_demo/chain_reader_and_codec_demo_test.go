@@ -100,23 +100,16 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 	err = actions.ConfigureOCRv2AggregatorContracts(env.EVMClient, ocrv2Config, aggregatorContracts)
 	require.NoError(t, err, "Error configuring OCRv2 aggregator contracts")
 
-	err = actions.WatchNewOCR2Round(1, aggregatorContracts, env.EVMClient, time.Minute*5, l)
-	require.NoError(t, err)
+	expectedAnswer := int64(5)
+	for i := int64(1); i <= 100; i++ {
+		require.NoError(t, actions.WatchNewOCR2Round(i, aggregatorContracts, env.EVMClient, time.Minute*10, l))
+		validateRoundData(t, aggregatorContracts, i, expectedAnswer)
 
-	validateRoundData(t, aggregatorContracts, 1, 5)
+		i += 1
+		require.NoError(t, actions.StartNewOCR2Round(i, aggregatorContracts, env.EVMClient, time.Minute*10, l))
+		validateRoundData(t, aggregatorContracts, i, expectedAnswer)
 
-	err = actions.StartNewOCR2Round(2, aggregatorContracts, env.EVMClient, time.Minute*5, l)
-	require.NoError(t, err, "Error waiting for new OCR2 round to start")
-
-	validateRoundData(t, aggregatorContracts, 2, 5)
-
-	err = env.MockAdapter.SetAdapterBasedIntValuePath("ocr2", []string{http.MethodGet, http.MethodPost}, 10)
-	require.NoError(t, err)
-	err = actions.WatchNewOCR2Round(3, aggregatorContracts, env.EVMClient, time.Minute*5, l)
-	require.NoError(t, err)
-	validateRoundData(t, aggregatorContracts, 3, 10)
-
-	err = actions.StartNewOCR2Round(4, aggregatorContracts, env.EVMClient, time.Minute*5, l)
-	require.NoError(t, err, "Error waiting for new OCR2 round to start")
-	validateRoundData(t, aggregatorContracts, 4, 10)
+		expectedAnswer += (expectedAnswer / 100) + 1
+		require.NoError(t, env.MockAdapter.SetAdapterBasedIntValuePath("ocr2", []string{http.MethodGet, http.MethodPost}, int(expectedAnswer)))
+	}
 }
