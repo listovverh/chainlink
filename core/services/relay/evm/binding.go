@@ -51,6 +51,7 @@ func (m *methodBinding) GetLatestValue(ctx context.Context, params any) ([]byte,
 		return nil, fmt.Errorf("%w: method not bound", commontypes.ErrInvalidType)
 	}
 
+	fmt.Printf("\n ***** Reading %s from contract state \n", m.method)
 	data, err := m.codec.Encode(ctx, params, wrapItemType(m.contractName, m.method, true))
 	if err != nil {
 		return nil, err
@@ -92,6 +93,7 @@ func (e *eventBinding) Register() error {
 	if !e.bound {
 		return nil
 	}
+	fmt.Printf("\n ***** Register %s event filter \n", e.eventName)
 
 	if err := e.lp.RegisterFilter(logpoller.Filter{
 		Name:      wrapItemType(e.contractName, e.eventName, false),
@@ -100,6 +102,8 @@ func (e *eventBinding) Register() error {
 	}); err != nil {
 		return fmt.Errorf("%w: %w", commontypes.ErrInternal, err)
 	}
+
+	fmt.Printf("\n ***** Sucessfully registered %s event filter \n", e.eventName)
 	return nil
 }
 
@@ -122,6 +126,7 @@ func (e *eventBinding) GetLatestValue(_ context.Context, _ any) ([]byte, error) 
 		return nil, fmt.Errorf("%w: event not bound", commontypes.ErrInvalidType)
 	}
 
+	fmt.Printf("\n ***** Reading %s from evm log using log poller \n", e.eventName)
 	confs := logpoller.Finalized
 	if e.pending {
 		confs = logpoller.Unconfirmed
