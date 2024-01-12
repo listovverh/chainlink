@@ -492,7 +492,6 @@ func WatchNewOCR2Round(
 	for i := 0; i < len(ocrInstances); i++ {
 		ocrRound := contracts.NewOffchainAggregatorV2RoundConfirmer(ocrInstances[i], big.NewInt(roundNumber), timeout, logger)
 		client.AddHeaderEventSubscription(ocrInstances[i].Address(), ocrRound)
-		fmt.Println("wait for events")
 		err := client.WaitForEvents()
 		if err != nil {
 			return fmt.Errorf("failed to wait for event subscriptions of OCR instance %d: %w", i+1, err)

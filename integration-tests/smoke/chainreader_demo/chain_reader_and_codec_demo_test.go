@@ -102,13 +102,16 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 
 	expectedAnswer := int64(5)
 	for i := int64(1); i <= 100; i++ {
+		fmt.Println("1")
 		require.NoError(t, actions.WatchNewOCR2Round(i, aggregatorContracts, env.EVMClient, time.Minute*10, l))
 		validateRoundData(t, aggregatorContracts, i, expectedAnswer)
+		fmt.Println("2")
 
 		i += 1
 		require.NoError(t, actions.StartNewOCR2Round(i, aggregatorContracts, env.EVMClient, time.Minute*10, l))
 		validateRoundData(t, aggregatorContracts, i, expectedAnswer)
 
+		fmt.Println("3")
 		expectedAnswer += (expectedAnswer / 100) + 1
 		require.NoError(t, env.MockAdapter.SetAdapterBasedIntValuePath("ocr2", []string{http.MethodGet, http.MethodPost}, int(expectedAnswer)))
 	}
