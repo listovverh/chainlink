@@ -58,7 +58,7 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 			},
 		)).
 		WithCLNodes(6).
-		WithCLNodeOptions(test_env.WithNodeEnvVars(map[string]string{string(env.MedianPluginCmd): ""})).
+		WithCLNodeOptions(test_env.WithNodeEnvVars(map[string]string{string(env.MedianPluginCmd): "chainlink-feeds"})).
 		WithFunding(big.NewFloat(.1)).
 		WithStandardCleanup().
 		WithLogStream().
@@ -102,16 +102,16 @@ func TestOCRv2BasicWithChainReaderAndCodecDemo(t *testing.T) {
 
 	expectedAnswer := int64(5)
 	for i := int64(1); i <= 100; i++ {
-		fmt.Println("1")
+		fmt.Println("WatchNewOCR2Round")
 		require.NoError(t, actions.WatchNewOCR2Round(i, aggregatorContracts, env.EVMClient, time.Minute*10, l))
 		validateRoundData(t, aggregatorContracts, i, expectedAnswer)
-		fmt.Println("2")
+		fmt.Println("StartNewOCR2Round")
 
 		i += 1
 		require.NoError(t, actions.StartNewOCR2Round(i, aggregatorContracts, env.EVMClient, time.Minute*10, l))
 		validateRoundData(t, aggregatorContracts, i, expectedAnswer)
 
-		fmt.Println("3")
+		fmt.Println("SetAdapterBasedIntValuePath")
 		expectedAnswer += (expectedAnswer / 100) + 1
 		require.NoError(t, env.MockAdapter.SetAdapterBasedIntValuePath("ocr2", []string{http.MethodGet, http.MethodPost}, int(expectedAnswer)))
 	}
