@@ -269,8 +269,7 @@ func makeOCRJobSpecFromToml(t *testing.T, jobSpecToml string) *job.Job {
 	return &jb
 }
 
-func makeOCR2VRFJobSpec(t testing.TB, ks keystore.Master, cfg chainlink.GeneralConfig,
-	transmitter common.Address, chainID *big.Int, fromBlock uint64) *job.Job {
+func makeOCR2VRFJobSpec(t testing.TB, ks keystore.Master, transmitter common.Address, chainID *big.Int, fromBlock uint64) *job.Job {
 	t.Helper()
 
 	useForwarders := false
