@@ -96,7 +96,7 @@ describe('Functions Client', () => {
             600_000, // limit set by gas flag == 1 is 500_000
           ),
       )
-        .to.be.revertedWithCustomError(contracts.coordinator, 'GasLimitTooBig')
+        .to.be.revertedWithCustomError(contracts.client, 'GasLimitTooBig')
         .withArgs(500000)
     })
 

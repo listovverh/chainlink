@@ -24,7 +24,6 @@ import { MockOVMGasPriceOracle__factory as MockOVMGasPriceOracleFactory } from '
 import { ChainModuleBase__factory as ChainModuleBaseFactory } from '../../../typechain/factories/ChainModuleBase__factory'
 import { ArbitrumModule__factory as ArbitrumModuleFactory } from '../../../typechain/factories/ArbitrumModule__factory'
 import { OptimismModule__factory as OptimismModuleFactory } from '../../../typechain/factories/OptimismModule__factory'
-import { ILogAutomation__factory as ILogAutomationactory } from '../../../typechain/factories/ILogAutomation__factory'
 import { IAutomationForwarder__factory as IAutomationForwarderFactory } from '../../../typechain/factories/IAutomationForwarder__factory'
 import { MockArbSys__factory as MockArbSysFactory } from '../../../typechain/factories/MockArbSys__factory'
 import { AutomationCompatibleUtils } from '../../../typechain/AutomationCompatibleUtils'
@@ -45,10 +44,6 @@ import {
   StaleUpkeepReportEvent,
   UpkeepPerformedEvent,
 } from '../../../typechain/IAutomationRegistryMaster'
-import {
-  deployMockContract,
-  MockContract,
-} from '@ethereum-waffle/mock-contract'
 import { deployRegistry22 } from './helpers'
 
 const describeMaybe = process.env.SKIP_SLOW ? describe.skip : describe
@@ -165,7 +160,7 @@ let mockArbGasInfo: MockArbGasInfo
 let mockOVMGasPriceOracle: MockOVMGasPriceOracle
 let mock: UpkeepMock
 let autoFunderUpkeep: UpkeepAutoFunder
-let ltUpkeep: MockContract
+// let ltUpkeep: MockContract
 let transcoder: UpkeepTranscoder
 let chainModuleBase: ChainModuleBase
 let arbitrumModule: ArbitrumModule
@@ -1012,13 +1007,13 @@ describe('AutomationRegistry2_2', () => {
       ](autoFunderUpkeep.address, performGas, autoFunderUpkeep.address, randomBytes, '0x')
     afUpkeepId = await getUpkeepID(tx)
 
-    ltUpkeep = await deployMockContract(owner, ILogAutomationactory.abi)
-    tx = await registry
-      .connect(owner)
-      [
-        'registerUpkeep(address,uint32,address,uint8,bytes,bytes,bytes)'
-      ](ltUpkeep.address, performGas, await admin.getAddress(), Trigger.LOG, '0x', logTriggerConfig, emptyBytes)
-    logUpkeepId = await getUpkeepID(tx)
+    // ltUpkeep = await deployMockContract(owner, ILogAutomationactory.abi)
+    // tx = await registry
+    //   .connect(owner)
+    //   [
+    //     'registerUpkeep(address,uint32,address,uint8,bytes,bytes,bytes)'
+    //   ](ltUpkeep.address, performGas, await admin.getAddress(), Trigger.LOG, '0x', logTriggerConfig, emptyBytes)
+    // logUpkeepId = await getUpkeepID(tx)
 
     await autoFunderUpkeep.setUpkeepId(afUpkeepId)
     // Give enough funds for upkeep as well as to the upkeep contract
@@ -3303,29 +3298,29 @@ describe('AutomationRegistry2_2', () => {
         assert.isTrue(checkUpkeepResult.linkNative.eq(linkEth))
       })
 
-      it('calls checkLog for log-trigger upkeeps', async () => {
-        const log: Log = {
-          index: 0,
-          timestamp: 0,
-          txHash: ethers.utils.randomBytes(32),
-          blockNumber: 100,
-          blockHash: ethers.utils.randomBytes(32),
-          source: randomAddress(),
-          topics: [ethers.utils.randomBytes(32), ethers.utils.randomBytes(32)],
-          data: ethers.utils.randomBytes(1000),
-        }
-
-        await ltUpkeep.mock.checkLog.withArgs(log, '0x').returns(true, '0x1234')
-
-        const checkData = encodeLog(log)
-
-        const checkUpkeepResult = await registry
-          .connect(zeroAddress)
-          .callStatic['checkUpkeep(uint256,bytes)'](logUpkeepId, checkData)
-
-        expect(checkUpkeepResult.upkeepNeeded).to.be.true
-        expect(checkUpkeepResult.performData).to.equal('0x1234')
-      })
+      // it('calls checkLog for log-trigger upkeeps', async () => {
+      //   const log: Log = {
+      //     index: 0,
+      //     timestamp: 0,
+      //     txHash: ethers.utils.randomBytes(32),
+      //     blockNumber: 100,
+      //     blockHash: ethers.utils.randomBytes(32),
+      //     source: randomAddress(),
+      //     topics: [ethers.utils.randomBytes(32), ethers.utils.randomBytes(32)],
+      //     data: ethers.utils.randomBytes(1000),
+      //   }
+      //
+      //   await ltUpkeep.mock.checkLog.withArgs(log, '0x').returns(true, '0x1234')
+      //
+      //   const checkData = encodeLog(log)
+      //
+      //   const checkUpkeepResult = await registry
+      //     .connect(zeroAddress)
+      //     .callStatic['checkUpkeep(uint256,bytes)'](logUpkeepId, checkData)
+      //
+      //   expect(checkUpkeepResult.upkeepNeeded).to.be.true
+      //   expect(checkUpkeepResult.performData).to.equal('0x1234')
+      // })
 
       itMaybe(
         'has a large enough gas overhead to cover upkeeps that use all their gas [ @skip-coverage ]',

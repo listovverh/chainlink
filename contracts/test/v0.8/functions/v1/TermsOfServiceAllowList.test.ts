@@ -1,12 +1,12 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import {
-  getSetupFactory,
+  acceptTermsOfService,
+  accessControlConfig,
+  accessControlMockPrivateKey,
   FunctionsContracts,
   FunctionsRoles,
-  acceptTermsOfService,
-  accessControlMockPrivateKey,
-  accessControlConfig,
+  getSetupFactory,
 } from './utils'
 
 const setup = getSetupFactory()
@@ -72,7 +72,10 @@ describe('ToS Access Control', () => {
             s,
             v,
           ),
-      ).to.be.revertedWith('InvalidSignature')
+      ).to.be.revertedWithCustomError(
+        contracts.accessControl,
+        'InvalidSignature',
+      )
     })
     it('can be done by Externally Owned Accounts if recipient themself', async () => {
       await acceptTermsOfService(
@@ -91,7 +94,7 @@ describe('ToS Access Control', () => {
           roles.subOwner,
           roles.strangerAddress,
         ),
-      ).to.be.revertedWith('InvalidUsage')
+      ).to.be.revertedWithCustomError(contracts.accessControl, 'InvalidUsage')
     })
     it('can be done by Contract Accounts if recipient themself', async () => {
       const acceptorAddress = roles.consumerAddress
@@ -129,7 +132,7 @@ describe('ToS Access Control', () => {
         contracts.client
           .connect(roles.consumer)
           .acceptTermsOfService(acceptorAddress, recipientAddress, r, s, v),
-      ).to.be.revertedWith('InvalidUsage')
+      ).to.be.revertedWithCustomError(contracts.accessControl, 'InvalidUsage')
     })
   })
 
@@ -149,7 +152,10 @@ describe('ToS Access Control', () => {
           roles.subOwner,
           roles.subOwnerAddress,
         ),
-      ).to.be.revertedWith('RecipientIsBlocked')
+      ).to.be.revertedWithCustomError(
+        contracts.accessControl,
+        'RecipientIsBlocked',
+      )
     })
     it('removes the ability to manage subscriptions', async () => {
       await acceptTermsOfService(
@@ -160,7 +166,10 @@ describe('ToS Access Control', () => {
       await contracts.accessControl.blockSender(roles.subOwnerAddress)
       await expect(
         contracts.router.connect(roles.subOwner).createSubscription(),
-      ).to.be.revertedWith('SenderMustAcceptTermsOfService')
+      ).to.be.revertedWithCustomError(
+        contracts.accessControl,
+        'SenderMustAcceptTermsOfService',
+      )
     })
   })
 })

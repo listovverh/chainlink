@@ -236,7 +236,7 @@ describe('EthBalanceMonitor', () => {
     })
 
     it('Should not allow duplicates in the watchlist', async () => {
-      const errMsg = `DuplicateAddress("${watchAddress1}")`
+      const errMsg = `DuplicateAddress`
       const setTx = bm
         .connect(owner)
         .setWatchList(
@@ -244,7 +244,9 @@ describe('EthBalanceMonitor', () => {
           [oneEth, twoEth, threeEth],
           [oneEth, twoEth, threeEth],
         )
-      await expect(setTx).to.be.revertedWith(errMsg)
+      await expect(setTx)
+        .to.be.revertedWithCustomError(bm, errMsg)
+        .withArgs(watchAddress1)
     })
 
     it('Should not allow strangers to set the watchlist', async () => {

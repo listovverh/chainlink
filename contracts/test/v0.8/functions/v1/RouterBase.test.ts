@@ -1,16 +1,16 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import {
-  getSetupFactory,
   coordinatorConfig,
+  createSubscription,
+  encodeReport,
   FunctionsContracts,
   FunctionsFactories,
   FunctionsRoles,
-  ids,
-  createSubscription,
-  encodeReport,
-  stringToHex,
   getEventArg,
+  getSetupFactory,
+  ids,
+  stringToHex,
 } from './utils'
 
 const setup = getSetupFactory()
@@ -52,13 +52,13 @@ describe('FunctionsRouter - Base', () => {
 
       await expect(
         contracts.router['getContractById(bytes32)'](ids.donId2),
-      ).to.be.revertedWith('RouteNotFound')
+      ).to.be.revertedWithCustomError(contracts.router, 'RouteNotFound')
       await expect(
         contracts.router['getContractById(bytes32)'](ids.donId3),
-      ).to.be.revertedWith('RouteNotFound')
+      ).to.be.revertedWithCustomError(contracts.router, 'RouteNotFound')
       await expect(
         contracts.router['getContractById(bytes32)'](ids.donId4),
-      ).to.be.revertedWith('RouteNotFound')
+      ).to.be.revertedWithCustomError(contracts.router, 'RouteNotFound')
       await expect(
         contracts.router.proposeContractsUpdate(
           [ids.donId2, ids.donId3, ids.donId4],
