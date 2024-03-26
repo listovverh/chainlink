@@ -7,8 +7,6 @@ import { AutomationRegistrar2_1__factory as AutomationRegistrarFactory } from '.
 
 /*********************************** REGISTRAR v2.1 IS FROZEN ************************************/
 
-// We are leaving the original tests enabled, however as 2.1 is still actively being deployed
-
 describe('AutomationRegistrar2_1 - Frozen [ @skip-coverage ]', () => {
   it('has not changed', () => {
     assert.equal(

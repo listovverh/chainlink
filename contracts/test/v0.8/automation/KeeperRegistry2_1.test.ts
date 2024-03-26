@@ -9,8 +9,6 @@ import { AutomationForwarderLogic__factory as AutomationForwarderLogicFactory } 
 
 /*********************************** REGISTRY v2.1 IS FROZEN ************************************/
 
-// We are leaving the original tests enabled, however as 2.1 is still actively being deployed
-
 describe('KeeperRegistry2_1 - Frozen [ @skip-coverage ]', () => {
   it('has not changed', () => {
     assert.equal(
