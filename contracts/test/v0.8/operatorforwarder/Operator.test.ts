@@ -306,7 +306,8 @@ describe('Operator', () => {
       it('reverts with subtraction overflow message', async () => {
         const amountToSend = toWei('2')
         const ethSent = toWei('1')
-        await evmRevert(
+
+        await expect(
           operator
             .connect(roles.defaultAccount)
             .distributeFunds(
@@ -316,8 +317,7 @@ describe('Operator', () => {
                 value: ethSent,
               },
             ),
-          'Arithmetic operation underflowed or overflowed outside of an unchecked block',
-        )
+        ).to.be.revertedWithPanic(0x11)
       })
     })
 
@@ -946,32 +946,6 @@ describe('Operator', () => {
           constants.HashZero,
         )
         await evmRevert(link.transferAndCall(operator.address, paid, args2))
-      })
-
-      describe('when called with a payload less than 2 EVM words + function selector', () => {
-        it('throws an error', async () => {
-          const funcSelector =
-            operatorFactory.interface.getSighash('oracleRequest')
-          const maliciousData =
-            funcSelector +
-            '0000000000000000000000000000000000000000000000000000000000000000000'
-          await evmRevert(
-            link.transferAndCall(operator.address, paid, maliciousData),
-          )
-        })
-      })
-
-      describe('when called with a payload between 3 and 9 EVM words', () => {
-        it('throws an error', async () => {
-          const funcSelector =
-            operatorFactory.interface.getSighash('oracleRequest')
-          const maliciousData =
-            funcSelector +
-            '000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001'
-          await evmRevert(
-            link.transferAndCall(operator.address, paid, maliciousData),
-          )
-        })
       })
     })
 

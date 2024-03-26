@@ -2,15 +2,15 @@ import { ethers } from 'hardhat'
 import { assert, expect } from 'chai'
 import { decodeDietCBOR, stringToBytes } from '../../../test-helpers/helpers'
 import {
-  getSetupFactory,
+  anyValue,
+  createSubscription,
+  encodeReport,
   FunctionsContracts,
   FunctionsRoles,
-  anyValue,
-  ids,
-  createSubscription,
   getEventArg,
+  getSetupFactory,
+  ids,
   parseOracleRequestEventArgs,
-  encodeReport,
 } from './utils'
 
 const setup = getSetupFactory()
@@ -95,7 +95,9 @@ describe('Functions Client', () => {
             ids.donId,
             600_000, // limit set by gas flag == 1 is 500_000
           ),
-      ).to.be.revertedWith('GasLimitTooBig(500000)')
+      )
+        .to.be.revertedWithCustomError(contracts.coordinator, 'GasLimitTooBig')
+        .withArgs(500000)
     })
 
     it('encodes user request to CBOR', async () => {

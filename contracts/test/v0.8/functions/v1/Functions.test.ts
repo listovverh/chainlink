@@ -1,12 +1,12 @@
 import { ethers } from 'hardhat'
 import {
-  publicAbi,
   decodeDietCBOR,
   hexToBuf,
+  publicAbi,
 } from '../../../test-helpers/helpers'
 import { assert, expect } from 'chai'
 import { Contract, ContractFactory, providers, Signer } from 'ethers'
-import { Roles, getUsers } from '../../../test-helpers/setup'
+import { getUsers, Roles } from '../../../test-helpers/setup'
 import { makeDebug } from '../../../test-helpers/debug'
 
 const debug = makeDebug('FunctionsTestHelper')
@@ -99,7 +99,7 @@ describe('FunctionsTestHelper', () => {
     it('reverts with EmptySource() if source param is empty', async () => {
       await expect(
         ctr.initializeRequestForInlineJavaScript(''),
-      ).to.be.revertedWith('EmptySource()')
+      ).to.be.revertedWithCustomError(ctr, 'EmptySource')
     })
   })
 
@@ -134,8 +134,9 @@ describe('FunctionsTestHelper', () => {
     it('reverts with EmptySecrets() if secrets param is empty', async () => {
       const js = 'function run(args, responses) {}'
       await ctr.initializeRequestForInlineJavaScript(js)
-      await expect(ctr.addSecretsReference('0x')).to.be.revertedWith(
-        'EmptySecrets()',
+      await expect(ctr.addSecretsReference('0x')).to.be.revertedWithCustomError(
+        ctr,
+        'EmptySecrets',
       )
     })
   })
@@ -166,7 +167,10 @@ describe('FunctionsTestHelper', () => {
 
   describe('#addEmptyArgs to revert', () => {
     it('reverts with EmptyArgs() if args param is empty', async () => {
-      await expect(ctr.addEmptyArgs()).to.be.revertedWith('EmptyArgs()')
+      await expect(ctr.addEmptyArgs()).to.be.revertedWithCustomError(
+        ctr,
+        'EmptyArgs',
+      )
     })
   })
 })
