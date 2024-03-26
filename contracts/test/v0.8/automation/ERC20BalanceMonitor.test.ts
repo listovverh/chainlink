@@ -221,7 +221,7 @@ describe('ERC20BalanceMonitor', () => {
     })
 
     it('Should not allow duplicates in the watchlist', async () => {
-      const errMsg = `DuplicateAddress("${watchAddress1}")`
+      const errMsg = `DuplicateAddress`
       const setTx = bm
         .connect(owner)
         .setWatchList(
@@ -229,7 +229,9 @@ describe('ERC20BalanceMonitor', () => {
           [oneLINK, twoLINK, threeLINK],
           [twoLINK, threeLINK, fiveLINK],
         )
-      await expect(setTx).to.be.revertedWith(errMsg)
+      await expect(setTx)
+        .to.be.revertedWithCustomError(bm, errMsg)
+        .withArgs(watchAddress1)
     })
 
     it('Should not allow a topUpLevel les than or equal to minBalance in the watchlist', async () => {
@@ -240,7 +242,10 @@ describe('ERC20BalanceMonitor', () => {
           [oneLINK, twoLINK, threeLINK],
           [zeroLINK, twoLINK, threeLINK],
         )
-      await expect(setTx).to.be.revertedWithCustomError(INVALID_WATCHLIST_ERR)
+      await expect(setTx).to.be.revertedWithCustomError(
+        bm,
+        INVALID_WATCHLIST_ERR,
+      )
     })
 
     it('Should not allow larger than maximum watchlist size', async () => {
