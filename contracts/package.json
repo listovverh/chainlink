@@ -41,7 +41,7 @@
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.9",
     "@nomicfoundation/hardhat-verify": "^2.0.5",
-    "@typechain/ethers-v5": "^7.2.0",
+    "@typechain/ethers-v5": "^11.1.2",
     "@typechain/hardhat": "^7.0.0",
     "@types/cbor": "5.0.1",
     "@types/chai": "^4.3.14",
@@ -70,7 +70,7 @@
     "solhint-plugin-chainlink-solidity": "git+https://github.com/smartcontractkit/chainlink-solhint-rules.git#v1.2.1",
     "solhint-plugin-prettier": "^0.1.0",
     "ts-node": "^10.9.2",
-    "typechain": "^8.2.1",
+    "typechain": "^8.3.2",
     "typescript": "^5.4.3"
   },
   "dependencies": {
