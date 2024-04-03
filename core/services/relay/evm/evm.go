@@ -80,7 +80,8 @@ type Relayer struct {
 	codec       commontypes.Codec
 
 	// Mercury
-	mercuryORM mercury.ORM
+	mercuryORM     mercury.ORM
+	transmitterCfg mercury.TransmitterConfig
 
 	// LLO/data streams
 	cdcFactory llo.ChannelDefinitionCacheFactory
@@ -253,7 +254,7 @@ func (r *Relayer) NewMercuryProvider(rargs commontypes.RelayArgs, pargs commonty
 	default:
 		return nil, fmt.Errorf("invalid feed version %d", feedID.Version())
 	}
-	transmitter := mercury.NewTransmitter(lggr, clients, privKey.PublicKey, rargs.JobID, *relayConfig.FeedID, r.mercuryORM, transmitterCodec)
+	transmitter := mercury.NewTransmitter(lggr, r.transmitterCfg, clients, privKey.PublicKey, rargs.JobID, *relayConfig.FeedID, r.mercuryORM, transmitterCodec)
 
 	return NewMercuryProvider(cp, r.chainReader, r.codec, NewMercuryChainReader(r.chain.HeadTracker()), transmitter, reportCodecV1, reportCodecV2, reportCodecV3, lggr), nil
 }
