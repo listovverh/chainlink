@@ -14,11 +14,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rpc"
 
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	"github.com/smartcontractkit/chainlink-common/pkg/logger"
 	"github.com/smartcontractkit/chainlink-common/pkg/services"
-	"github.com/smartcontractkit/chainlink-common/pkg/utils"
-
-	gethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/smartcontractkit/chainlink/v2/common/client"
 	"github.com/smartcontractkit/chainlink/v2/common/config"
@@ -221,7 +220,8 @@ func (o *l1Oracle) HealthReport() map[string]error {
 func (o *l1Oracle) run() {
 	defer close(o.chDone)
 
-	t := o.refresh()
+	t := services.NewTicker(o.pollPeriod)
+	defer t.Stop()
 	close(o.chInitialised)
 
 	for {
@@ -229,27 +229,25 @@ func (o *l1Oracle) run() {
 		case <-o.chStop:
 			return
 		case <-t.C:
-			t = o.refresh()
+			o.refresh()
 		}
 	}
 }
-func (o *l1Oracle) refresh() (t *time.Timer) {
-	t, err := o.refreshWithError()
+func (o *l1Oracle) refresh() {
+	err := o.refreshWithError()
 	if err != nil {
 		o.SvcErrBuffer.Append(err)
 	}
 	return
 }
 
-func (o *l1Oracle) refreshWithError() (t *time.Timer, err error) {
-	t = time.NewTimer(utils.WithJitter(o.pollPeriod))
-
+func (o *l1Oracle) refreshWithError() (err error) {
 	ctx, cancel := o.chStop.CtxCancel(evmclient.ContextWithDefaultTimeout())
 	defer cancel()
 
 	price, err := o.fetchL1GasPrice(ctx)
 	if err != nil {
-		return t, err
+		return err
 	}
 
 	o.l1GasPriceMu.Lock()

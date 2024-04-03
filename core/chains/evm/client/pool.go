@@ -17,8 +17,6 @@ import (
 
 	"github.com/smartcontractkit/chainlink-common/pkg/logger"
 	"github.com/smartcontractkit/chainlink-common/pkg/services"
-	"github.com/smartcontractkit/chainlink-common/pkg/utils"
-
 	"github.com/smartcontractkit/chainlink/v2/common/config"
 	evmtypes "github.com/smartcontractkit/chainlink/v2/core/chains/evm/types"
 )
@@ -235,7 +233,7 @@ func (p *Pool) runLoop() {
 	// Prometheus' default interval is 15s, set this to under 7.5s to avoid
 	// aliasing (see: https://en.wikipedia.org/wiki/Nyquist_frequency)
 	reportInterval := 6500 * time.Millisecond
-	monitor := time.NewTicker(utils.WithJitter(reportInterval))
+	monitor := services.NewTicker(reportInterval)
 	defer monitor.Stop()
 
 	for {

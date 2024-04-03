@@ -90,11 +90,11 @@ func (pm *PersistenceManager) runFlushDeletesLoop() {
 	ctx, cancel := pm.stopCh.Ctx(context.Background())
 	defer cancel()
 
-	ticker := time.NewTicker(utils.WithJitter(pm.flushDeletesFrequency))
+	ticker := services.NewTicker(pm.flushDeletesFrequency)
+	defer ticker.Stop()
 	for {
 		select {
 		case <-ctx.Done():
-			ticker.Stop()
 			return
 		case <-ticker.C:
 			queuedReqs := pm.resetDeleteQueue()
@@ -115,10 +115,10 @@ func (pm *PersistenceManager) runPruneLoop() {
 	defer cancel()
 
 	ticker := time.NewTicker(utils.WithJitter(pm.pruneFrequency))
+	defer ticker.Stop()
 	for {
 		select {
 		case <-ctx.Done():
-			ticker.Stop()
 			return
 		case <-ticker.C:
 			if err := pm.orm.PruneTransmitRequests(pm.serverURL, pm.jobID, pm.maxTransmitQueueSize, pg.WithParentCtx(ctx), pg.WithLongQueryTimeout()); err != nil {

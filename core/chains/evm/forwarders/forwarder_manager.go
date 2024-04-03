@@ -13,8 +13,6 @@ import (
 	"github.com/smartcontractkit/chainlink-common/pkg/logger"
 	"github.com/smartcontractkit/chainlink-common/pkg/services"
 	"github.com/smartcontractkit/chainlink-common/pkg/sqlutil"
-	"github.com/smartcontractkit/chainlink-common/pkg/utils"
-
 	evmclient "github.com/smartcontractkit/chainlink/v2/core/chains/evm/client"
 	evmlogpoller "github.com/smartcontractkit/chainlink/v2/core/chains/evm/logpoller"
 	evmtypes "github.com/smartcontractkit/chainlink/v2/core/chains/evm/types"
@@ -233,11 +231,12 @@ func (f *FwdMgr) getCachedSenders(addr common.Address) ([]common.Address, bool) 
 
 func (f *FwdMgr) runLoop() {
 	defer f.wg.Done()
-	tick := time.After(0)
+	ticker := services.NewTicker(time.Minute)
+	defer ticker.Stop()
 
-	for ; ; tick = time.After(utils.WithJitter(time.Minute)) {
+	for {
 		select {
-		case <-tick:
+		case <-ticker.C:
 			if err := f.logpoller.Ready(); err != nil {
 				f.logger.Warnw("Skipping log syncing", "err", err)
 				continue

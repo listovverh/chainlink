@@ -12,7 +12,6 @@ import (
 
 	"github.com/smartcontractkit/chainlink-common/pkg/logger"
 	"github.com/smartcontractkit/chainlink-common/pkg/services"
-	"github.com/smartcontractkit/chainlink-common/pkg/utils"
 	bigmath "github.com/smartcontractkit/chainlink-common/pkg/utils/big_math"
 
 	"github.com/smartcontractkit/chainlink/v2/common/fee"
@@ -94,7 +93,8 @@ func (o *SuggestedPriceEstimator) HealthReport() map[string]error {
 func (o *SuggestedPriceEstimator) run() {
 	defer close(o.chDone)
 
-	t := o.refreshPrice()
+	t := services.NewTicker(o.pollPeriod)
+	defer t.Stop()
 	close(o.chInitialised)
 
 	for {
@@ -102,18 +102,16 @@ func (o *SuggestedPriceEstimator) run() {
 		case <-o.chStop:
 			return
 		case ch := <-o.chForceRefetch:
-			t.Stop()
-			t = o.refreshPrice()
+			o.refreshPrice()
+			t.Reset()
 			close(ch)
 		case <-t.C:
-			t = o.refreshPrice()
+			o.refreshPrice()
 		}
 	}
 }
 
-func (o *SuggestedPriceEstimator) refreshPrice() (t *time.Timer) {
-	t = time.NewTimer(utils.WithJitter(o.pollPeriod))
-
+func (o *SuggestedPriceEstimator) refreshPrice() {
 	var res hexutil.Big
 	ctx, cancel := o.chStop.CtxCancel(evmclient.ContextWithDefaultTimeout())
 	defer cancel()

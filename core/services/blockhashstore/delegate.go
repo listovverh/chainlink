@@ -20,7 +20,6 @@ import (
 	"github.com/smartcontractkit/chainlink/v2/core/services/job"
 	"github.com/smartcontractkit/chainlink/v2/core/services/keystore"
 	"github.com/smartcontractkit/chainlink/v2/core/services/pg"
-	"github.com/smartcontractkit/chainlink/v2/core/utils"
 )
 
 var _ job.ServiceCtx = &service{}
@@ -212,7 +211,6 @@ type service struct {
 func (s *service) Start(context.Context) error {
 	return s.StartOnce("BHS Feeder Service", func() error {
 		s.logger.Infow("Starting BHS feeder")
-		ticker := time.NewTicker(utils.WithJitter(s.pollPeriod))
 		s.parentCtx, s.cancel = context.WithCancel(context.Background())
 		s.wg.Add(2)
 		go func() {
@@ -221,6 +219,7 @@ func (s *service) Start(context.Context) error {
 		}()
 		go func() {
 			defer s.wg.Done()
+			ticker := services.NewTicker(s.pollPeriod)
 			defer ticker.Stop()
 			for {
 				select {
