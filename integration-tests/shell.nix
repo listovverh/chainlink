@@ -1,8 +1,8 @@
 { pkgs, scriptDir }:
 with pkgs;
 let
-  go = go_1_21;
-  postgresql = postgresql_14;
+  go = pkgs.go_1_21;
+  postgresql = postgresql_15;
   nodejs = nodejs-18_x;
   nodePackages = pkgs.nodePackages.override { inherit nodejs; };
 in
@@ -18,9 +18,8 @@ mkShell {
     curl
     nodejs
     nodePackages.pnpm
-    # TODO: compiler / gcc for secp compilation
+    nodePackages.yarn
     go-ethereum # geth
-    # parity # openethereum
     go-mockery
 
     # tooling
@@ -30,27 +29,25 @@ mkShell {
     golangci-lint
     github-cli
     jq
+    dasel
 
     # deployment
     awscli2
     devspace
     kubectl
     kubernetes-helm
-
-    # gofuzz
+    k9s
   ] ++ lib.optionals stdenv.isLinux [
     # some dependencies needed for node-gyp on pnpm install
     pkg-config
     libudev-zero
     libusb1
   ];
-  LD_LIBRARY_PATH = "${stdenv.cc.cc.lib}/lib64:$LD_LIBRARY_PATH";
+
+  LD_LIBRARY_PATH = lib.makeLibraryPath [pkgs.zlib stdenv.cc.cc.lib]; # lib64
   GOROOT = "${go}/share/go";
   CGO_ENABLED = "0";
-  HELM_REPOSITORY_CONFIG = "${scriptDir}/integration-tests/.helm-repositories.yaml";
-
-  PGDATA = "db";
-  CL_DATABASE_URL = "postgresql://chainlink:chainlink@localhost:5432/chainlink_test?sslmode=disable";
+  HELM_REPOSITORY_CONFIG = "${scriptDir}/.helm-repositories.yaml";
 
   shellHook = ''
     # Update helm repositories
