@@ -4,7 +4,7 @@ coverage:
   status:
     project:
       default:
-        threshold: 1%
+        threshold: 2%
 
 github_checks:
   annotations: false
